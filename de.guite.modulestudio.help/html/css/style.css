@@ -1,0 +1,29 @@
+
+
+body {
+	background-color: #ffffff;
+	background-image: url(../images/logo.png);
+	background-repeat: no-repeat;
+	background-position: top right;
+	color: #333333;
+	padding-top: 4em;
+	margin: 1em 1em 0 0;
+}
+
+h1, h2, h3 {
+	border-bottom: 1px solid #333333;
+}
+
+dl {
+
+}
+
+dl dt {
+    margin-top: 1.3em;
+    font-weight: 700;
+}
+
+dl dd {
+
+}
+

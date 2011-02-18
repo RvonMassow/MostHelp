@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<compositeCheatsheet name="ModuleStudio Cheat Sheet">
+   <taskGroup kind="set" name="Build software the easy way" skip="false">
+      <intro>
+         <b>This cheat sheet is a tutorial showing how to create software with ModuleStudio.</b>
+      </intro>
+      <onCompletion>
+         Now you have built a complete application by the simple use of model elements.
+<b>Great, isn&apos;t it?</b>
+      </onCompletion>
+      <task kind="cheatsheet" name="Start new project" skip="true">
+         <intro>
+            The first thing you have to do is to start a new project in which your software will be created and stored.
+         </intro>
+         <onCompletion>
+            Now that you have a project you can start moving around.
+         </onCompletion>
+         <param name="path" value="2_startproject.xml">
+         </param>
+      </task>
+      <task kind="cheatsheet" name="Explore the environment" skip="true">
+         <intro>
+            Learn the basic elements of ModuleStudio and how to use them.
+         </intro>
+         <onCompletion>
+            Now that you know the basic elements of ModuleStudio you are ready for building models.
+         </onCompletion>
+         <param name="path" value="3_environment.xml">
+         </param>
+      </task>
+      <taskGroup kind="sequence" name="Describe application with models" skip="false">
+         <intro>
+            Learn how the different editor types work and how they describe applications.
+         </intro>
+         <onCompletion>
+            You learnt to know the different editor types and have a full model.
+         </onCompletion>
+         <task kind="cheatsheet" name="Main editor" skip="false">
+            <intro>
+               <b>Introduction</b>
+            </intro>
+            <onCompletion>
+               <b>Conclusion</b>
+            </onCompletion>
+            <param name="path" value="4_editorstart.xml">
+            </param>
+         </task>
+         <task kind="cheatsheet" name="Model editor" skip="false">
+            <intro>
+               <b>Introduction</b>
+            </intro>
+            <onCompletion>
+               <b>Conclusion</b>
+            </onCompletion>
+            <param name="path" value="5_editormodel.xml">
+            </param>
+         </task>
+         <task kind="cheatsheet" name="Controller editor" skip="false">
+            <intro>
+               <b>Introduction</b>
+            </intro>
+            <onCompletion>
+               <b>Conclusion</b>
+            </onCompletion>
+            <param name="path" value="6_editorcontroller.xml">
+            </param>
+         </task>
+         <task kind="cheatsheet" name="Permission editor" skip="true">
+            <intro>
+               <b>Introduction</b>
+            </intro>
+            <onCompletion>
+               <b>Conclusion</b>
+            </onCompletion>
+            <param name="path" value="7_editorpermission.xml">
+            </param>
+         </task>
+         <task kind="cheatsheet" name="View editor" skip="true">
+            <intro>
+               <b>Introduction</b>
+            </intro>
+            <onCompletion>
+               <b>Conclusion</b>
+            </onCompletion>
+            <param name="path" value="8_editorview.xml">
+            </param>
+         </task>
+      </taskGroup>
+      <taskGroup kind="sequence" name="Generate code from a model" skip="false">
+         <intro>
+            <b>Introduction</b>
+         </intro>
+         <onCompletion>
+            Learn about validation and how to generate code from your model.
+         </onCompletion>
+         <task kind="cheatsheet" name="Validation" skip="false">
+            <intro>
+               <b>Introduction</b>
+            </intro>
+            <onCompletion>
+               <b>Conclusion</b>
+            </onCompletion>
+         </task>
+         <task kind="cheatsheet" name="Generation process" skip="false">
+            <intro>
+               <b>Introduction</b>
+            </intro>
+            <onCompletion>
+               <b>Conclusion</b>
+            </onCompletion>
+            <param name="path" value="9_generator.xml">
+            </param>
+         </task>
+      </taskGroup>
+   </taskGroup>
+</compositeCheatsheet>

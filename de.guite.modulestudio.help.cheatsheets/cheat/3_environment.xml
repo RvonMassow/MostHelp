@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Exploring the environment">
+   <intro>
+      <description>
+         <b>Body</b>
+      </description>
+   </intro>
+   <item title="Menus and Toolbars" dialog="true" skip="false">
+      <description>
+         <b>Body</b>
+      </description>
+   </item>
+   <item title="Windows and Views" dialog="true" skip="false">
+      <description>
+         <b>Body</b>
+      </description>
+   </item>
+   <item title="Editors" dialog="true" skip="false">
+      <description>
+         <b>Body</b>
+      </description>
+      <subitem label="Sub-Step" skip="false">
+      </subitem>
+      <subitem label="Sub-Step (1)" skip="false">
+      </subitem>
+      <subitem label="Sub-Step (2)" skip="false">
+      </subitem>
+   </item>
+</cheatsheet>
