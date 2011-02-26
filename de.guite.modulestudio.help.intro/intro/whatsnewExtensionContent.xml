@@ -2,7 +2,7 @@
 <introContent>
   	<extensionContent id="whatsnew-top-left" style="css/style.css" name="Whats New Extension" path="whatsnew/@">
         <group style-id="content-group" id="deguitemodulestudio-introLink-group052">
-            <text>Updated to Eclipse 3.6.1.</text>
+            <text>Updated to Eclipse 3.6.2 (Helios SR2).</text>
             <text>Fixed wrong property naming for feature license links on about page.</text>
             <text>Categories in the properties view for better overview of available properties.</text>
             <text>Description for all properties (visible in the status line at the bottom of the window).</text>
