@@ -7,7 +7,6 @@ Bundle-Vendor: %providerName
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.help;bundle-version="3.5.0",
- org.eclipse.help.appserver;bundle-version="3.1.400",
  org.eclipse.help.base;bundle-version="3.5.0",
  org.eclipse.help.ui;bundle-version="3.5.0",
  org.eclipse.help.webapp;bundle-version="3.5.0",
