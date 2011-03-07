@@ -27,6 +27,7 @@
             <text>Manual editing of slugs (permalinks) if sluggableCanUpdate is set to true.</text>
             <text>Documentation cartridge has been removed as it will be contained in reporting.</text>
             <text>Generation does now automatically export all diagrams in various image formats.</text>
+            <text>Direct usage of Doctrine_Pager instead of own selectCount method to retrieve the amount of affected records.</text>
         </group>
         <group style-id="content-group" id="deguitemodulestudio-introLink-group051">
             <text>Editors: performance of live validation has been improved by closing a memory leak.</text>
