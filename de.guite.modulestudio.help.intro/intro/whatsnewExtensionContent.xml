@@ -28,6 +28,7 @@
             <text>Documentation cartridge has been removed as it will be contained in reporting.</text>
             <text>Generation does now automatically export all diagrams in various image formats.</text>
             <text>Direct usage of Doctrine_Pager instead of own selectCount method to retrieve the amount of affected records.</text>
+            <text>The reports "documentation" and "modelInfos" are now multilingual.</text>
         </group>
         <group style-id="content-group" id="deguitemodulestudio-introLink-group051">
             <text>Editors: performance of live validation has been improved by closing a memory leak.</text>
