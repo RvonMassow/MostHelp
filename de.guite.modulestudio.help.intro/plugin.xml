@@ -6,19 +6,7 @@
       <!-- bind the universal intro implementation to our product id --> 
       <introProductBinding
             introId="org.eclipse.ui.intro.universal"
-            productId="de.guite.modulestudio.branding.most-ce">
-      </introProductBinding>
-      <introProductBinding
-            introId="org.eclipse.ui.intro.universal"
-            productId="de.guite.modulestudio.branding.most-se">
-      </introProductBinding>
-      <introProductBinding
-            introId="org.eclipse.ui.intro.universal"
-            productId="de.guite.modulestudio.branding.most-pe">
-      </introProductBinding>
-      <introProductBinding
-            introId="org.eclipse.ui.intro.universal"
-            productId="de.guite.modulestudio.branding.most-ee">
+            productId="de.guite.modulestudio.branding.most">
       </introProductBinding>
 <!--
       <intro
