@@ -22,7 +22,7 @@
     </extensionContent>
     <extensionContent id="webresources-bottom-left" style="css/style.css" name="Webresources Extension" path="webresources/@">
         <group style-id="content-group" id="deguitemodulestudio-introLink-group">
-            <link label="Generator project" url="http://code.zikula.org/generator/" id="deguitemodulestudio-introLink" style-id="content-link">
+            <link label="Generator project" url="https://github.com/Guite/MostGenerator" id="deguitemodulestudio-introLink" style-id="content-link">
                 <text>The outsourced generator project, containing cartridges for different purposes.</text>
             </link>
             <link label="Tester group" url="http://groups.google.de/group/most-dev" id="deguitemodulestudio-introLink" style-id="content-link">
