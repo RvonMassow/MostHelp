@@ -6,6 +6,9 @@ var targetDir = "pdfmanual"
 var modelPath = "xdoc"
 
 Workflow {
+/*      bean = StandaloneSetup {
+        platformUri="."
+	}*/
     component = @workflow.XDocGenerator {
         // or define search scope explicitly
         modelPath = modelPath
