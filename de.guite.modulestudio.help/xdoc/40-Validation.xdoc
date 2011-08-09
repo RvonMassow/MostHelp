@@ -1,0 +1,1623 @@
+chapter:Validation[Validation]
+
+section:ValidationIntroduction[Introduction]
+
+Validation is an essential part of a modeling language. With the help of e[constraints]
+it ensures that certain scenarios can not happen in order to avoid problems
+based on invalid states of model elements.
+
+With the help of validation in ModuleStudio all subsequent components can process
+the given application model without having to revalidate common concerns.
+
+Having clean and properly validated models is also very helpful for Zikula as a framework because in
+the long term this leads to a constantly high quality across third party extensions which is traditionally
+a weak point for every open source system. See link[http://modulestudio.de/en/tutorial/validation-instead-of-certification-of-3rd-party-framework-modules.html][this
+tutorial] for more information about this aspect.
+
+The constraints described here are evaluated within the graphical editor as well as
+during headless generator workflows.
+
+section:ValidationBasicUsage[Basic usage]
+
+This section gives a brief overview of how validation can be executed and what can
+be done if problems occur.
+
+section2:ValidationTrigger[Triggering validation]
+
+In common use cases it is not required to do anything manually. ModuleStudio does
+automatically perform a e[live validation] so you get immediate feedback after having
+done some model amendments.
+
+For more complex model this can be come inconvenient with regards to performance as
+the live validation has to check many rules every few seconds. In these cases one
+can simply deactivate the live validation by stopping the according jobs in the
+process view (see link[http://modulestudio.de/en/tutorial/controlling-validation-manually.html][this
+tutorial]).
+
+section2:ValidationConsequences[Validation consequences]
+
+As the generator requires a model without validation problems it can only be started in the main menu
+after your model has no errors left.
+
+If the menu entry for starting the generator is inactive even if your models seems to be clean, please
+save the model in the main editor and click once in the diagram canvas to let the validation update it's
+state accordingly.
+
+In case live validation has been deactivated you can start a e[manual validation] in
+the main menu, too.
+
+section:ValidationReference[Reference]
+
+This section lists all validation rules in detail and explains the motivation behind them. You can use
+this reference to search for certain error messages if you want to know more about the background. If
+you are unsure about the terminology used in a description please refer to the ref:Generator[generator chapter]
+in this documentation.
+
+section2:ValidationApplicationLayer[Application layer]
+
+section3[Global rules]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Every element with a name]
+        td[The name must be a valid identifier (e.g. no whitespace or special characters).]
+        td[Camel case is recommended to get more readable messages generated, for example e[mySpecialUser]]
+    ]
+]
+
+section3[Application]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Application]
+        td[The application must have a name.]
+        td[Application name must have a length of at least five chars. However recommended are at least
+        seven chars.]
+    ]
+    tr[
+        td[Application]
+        td[Application name must start with a capital letter.]
+        td[Since Zikula 1.3 extensions must start with a capital letter. Of course we could simply generate
+        it this way. But for consistency we decided to follow this rule more strictly by enforcing it in the
+        model already.]
+    ]
+    tr[
+        td[Application]
+        td[The application must have an author.]
+        td[]
+    ]
+    tr[
+        td[Application with email set]
+        td[The value for the application email field must be a valid email address.]
+        td[]
+    ]
+    tr[
+        td[Application with url set]
+        td[The value for the application url field must be a valid url.]
+        td[Allowed protocols are http, ftp and https.]
+    ]
+    tr[
+        td[Application]
+        td[The application must have a prefix for it's database tables.]
+        td[This prefix is required to prevent naming collisions between several modules. Otherwise it
+        would be a problem if multiple extensions use common table names like e[user] or e[category].
+        The prefix must have a length of more than two chars, whereby a at least four is recommended.]
+    ]
+    tr[
+        td[Application]
+        td[The prefix must be a valid identifier (e.g. no whitespace or special characters).]
+        td[Essentially the same as the global rule for names above. You should use lowercase here, but
+        it will be generated in lowercase in all cases.]
+    ]
+    tr[
+        td[Application]
+        td[The application must have a version. The application version must conform to the pattern x.y.z.]
+        td[Another requirement introduced in Zikula 1.3. Valid values are 1.0.0, 1.2.2, but not 1.1 or
+        2.1.0beta.]
+    ]
+    tr[
+        td[Application]
+        td[The application must contain at least one model container.]
+        td[At the moment ModuleStudio wants a model with at least one entity. If you are modeling an
+        extension without any data storage, just create some dummy elements.]
+    ]
+    tr[
+        td[Application with model containers]
+        td[Names of model containers must be unique.]
+        td[Unique identification and separation of data sources.]
+    ]
+    tr[
+        td[Application with model containers]
+        td[There should be at least one model container refering to the system's internal data source.
+        There must be only one model container refering to the system's internal data source.]
+        td[Each model container has a property marking it as default data source or not. Only one container
+        can set this to true which will then be handled as normal by Zikula. Additional model containers
+        are seen as external data sources instead.]
+    ]
+    tr[
+        td[Application]
+        td[The application must contain at least one controller container.]
+        td[ModuleStudio requires at least one controller, because otherwise the module wouldn't do anything.
+        If you are modeling an extension without any controllers, just create some dummy elements.]
+    ]
+    tr[
+        td[Application with controller containers]
+        td[Names of controller containers must be unique.]
+        td[Unique identification and separation of controllers.]
+    ]
+    tr[
+        td[Application]
+        td[The application must contain at least one view container.]
+        td[At the moment ModuleStudio requires at least one view.]
+    ]
+    tr[
+        td[Application with view containers]
+        td[Names of view containers must be unique.]
+        td[Unique identification and separation of view layers.]
+    ]
+]
+
+section3[Model container]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Model container]
+        td[The model container must have a name.]
+        td[The container name must have a length of at least three chars. Recommended are at least four
+        chars.]
+    ]
+    tr[
+        td[Model container]
+        td[Model container must be assigned to an application.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Application with model container with entities]
+        td[Exactly one entity must be declared as leading (leading=true).]
+        td[More information ref:ValidationEntity[in the Entity section].]
+    ]
+]
+
+section3[Controller container]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Controller container]
+        td[The controller container must have a name.]
+        td[The container name must have a length of at least three chars. Recommended are at least four
+        chars.]
+    ]
+    tr[
+        td[Controller container]
+        td[Controller container must be assigned to an application.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Controller container]
+        td[Every controller container must rely on at least one model container.]
+        td[You have to create relationships between controller and model containers. This specifices
+        which controller functions may process data from which sources.]
+    ]
+    tr[
+        td[Controller container]
+        td[Every controller container must reference at least one view container.]
+        td[You have to create relationships between controller and view containers. This specifices which
+        controller functions may use which view templates for their output. This rule is currently not
+        active as the view editor is not ready yet.]
+    ]
+    tr[
+        td[Application with controller container with controllers]
+        td[There must not exist more than one (admin | user | account | ajax | search) controller.]
+        td[Predefined controllers are unique per application (i.e. there is only one admin area).]
+    ]
+    tr[
+        td[Application with controller container with controllers]
+        td[Names of custom controllers must be unique.]
+        td[For example there may not be two controllers which are both named e[edit].]
+    ]
+]
+
+section3[View container]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[View container]
+        td[The view container must have a name.]
+        td[The view name must have a length of at least three chars. Recommended are at least four
+        chars.]
+    ]
+    tr[
+        td[View container]
+        td[View container must be assigned to an application.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+]
+
+section2:ValidationModelLayer[Model layer]
+
+section3[Model container]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Model container]
+        td[The model container must contain at least one entity.]
+        td[]
+    ]
+    tr[
+        td[Model container with entities]
+        td[Entity names must be unique.]
+        td[For example there may not be two entities which are both named e[person].]
+    ]
+    tr[
+        td[Model container with entities]
+        td[The amount of entities is getting quite high. Maybe it makes sense to split up the model into
+        two single applications.]
+        td[This warning appears if you have more than 14 entities. Remember Zikula is a modular system.
+        You can design whole families of extensions with ModuleStudio, so please try keeping complexity
+        low and apply separation of concerns.]
+    ]
+    tr[
+        td[Application with model container with entities]
+        td[An entity must not have the same name as the application.]
+        td[This case is reserved as it could make sense to use corresponding namespaces in generation
+        for encapsulating some common code parts.]
+    ]
+]
+
+section3:ValidationEntity[Entity]
+
+section4[General entity settings]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Entity]
+        td[The entity must be assigned to a model container.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Entity]
+        td[Every entity must have a (name | name for multiple instances).]
+        td[Entity (multiple) name must have a length of at least two chars. Should have at least four chars.]
+    ]
+    tr[
+        td[Entity]
+        td[Entity (multiple) name must not contain underscores.]
+        td[Underscores are not allowed as they are used for class autoloading.]
+    ]
+    tr[
+        td[Entity]
+        td[Every table must contain at least one field or inherit fields from a parent table.]
+        td[Ensures that either there are some fields in this entity or an outgoing inheritance relationship.]
+    ]
+    tr[
+        td[Entity with fields]
+        td[You may not mark a field as primary, this is done automatically - unless maybe you want to
+        create composite primary keys.]
+        td[This warning appears because ModuleStudio adds primary keys automatically and uses the Doctrine
+        2 default settings if nothing else is explitely specified in the model. Beside special use cases
+        like custom join conditions or composite primary keys you won't need to set primary keys manually.]
+    ]
+    tr[
+        td[Entity with fields]
+        td[Remove ID fields... you do not need them ;-) unless maybe you want to create composite primary keys.]
+        td[This warning appears if a field is named like e[id] or e[personid] or e[person_id] for an entity named
+        e[person]. In these cases ModuleStudio adds primary keys to this table automatically before
+        the generation.]
+    ]
+    tr[
+        td[Entity with composite primary keys]
+        td[Composite entities can only have identifier strategies NONE and ASSIGNED.]
+        td[Automatic identifier generation is not possible for composite primary keys.]
+    ]
+    tr[
+        td[Entity with fields]
+        td[Every entity must contain one field defined as leading (leading = true).]
+        td[The leading field is used in list views, auto completion as well as default sorting criteria
+        (unless the entity is using the Sortable extension).]
+    ]
+]
+
+section4[Inheritance-related entity settings]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Entity with (inheritance) relationships]
+        td[All entities within a class hierarchy must have the same change tracking policy.]
+        td[Requirement by Doctrine 2.]
+    ]
+    tr[
+        td[Entity with (inheritance) relationships]
+        td[All entities within a class hierarchy must not have a field with the same name.]
+        td[]
+    ]
+    tr[
+        td[Entity]
+        td[All inheritance connections within a class hierarchy must have the same inheritance strategy.]
+        td[]
+    ]
+    tr[
+        td[Entity]
+        td[All inheritance connections within a class hierarchy must have the same discriminator column.]
+        td[]
+    ]
+    tr[
+        td[Entity]
+        td[An entity can not inherit from multiple entities.]
+        td[]
+    ]
+    tr[
+        td[Entity defined as mapped super class]
+        td[All associations outgoing from mapped super classes must be unidirectional.]
+        td[]
+    ]
+    tr[
+        td[Entity defined as mapped super class]
+        td[One-to-many relations are not possible for mapped super classes.]
+        td[]
+    ]
+    tr[
+        td[Entity defined as mapped super class]
+        td[Many-to-many relations are only possible for mapped super classes if it is used only in one
+        entity at the same time.]
+        td[]
+    ]
+]
+
+section4[Extension-related entity settings]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Entity defined as loggable]
+        td[Loggable entities need one field with the version attribute set to true.]
+        td[Can be either integer or datetime fields.]
+    ]
+    tr[
+        td[Entity defined as geographical]
+        td[Entities with geographical behaviour should ideally contain a String Field with name zipcode
+        with a length of at least 10.]
+        td[Just a warning to support best practices.]
+    ]
+    tr[
+        td[Entity defined as loggable]
+        td[There must not exist an entity named FooLogEntry as this is reserved by the corresponding extension.]
+        td[For an entity named e[person] ModuleStudio does not only generate corresponding e[Person] classes,
+        but also an entity named e[PersonLogEntry] for managing the version log entry entities.]
+    ]
+    tr[
+        td[Entity with translatable field]
+        td[There must not exist an entity named FooTranslation as this is reserved by the corresponding extension.]
+        td[For an entity named e[person] ModuleStudio does not only generate corresponding e[Person] classes,
+        but also an entity named e[PersonTranslatable] for managing translation entities.]
+    ]
+    tr[
+        td[Entity defined with closure tree]
+        td[There must not exist an entity named FooClosure as this is reserved by the corresponding extension.]
+        td[For an entity named e[person] ModuleStudio does not only generate corresponding e[Person] classes,
+        but also an entity named e[PersonClosure] for managing the closure entities.]
+    ]
+    tr[
+        td[Entity defined as attributable]
+        td[There must not exist an entity named FooAttribute as this is reserved by the corresponding extension.]
+        td[For an entity named e[person] ModuleStudio does not only generate corresponding e[Person] classes,
+        but also an entity named e[PersonAttribute] for managing the attribute entities.]
+    ]
+    tr[
+        td[Entity defined as categorisable]
+        td[There must not exist an entity named FooCategory as this is reserved by the corresponding extension.]
+        td[For an entity named e[person] ModuleStudio does not only generate corresponding e[Person] classes,
+        but also an entity named e[PersonCategory] for managing the category entities.]
+    ]
+    tr[
+        td[Entity with meta data]
+        td[There must not exist an entity named FooMetaData as this is reserved by the corresponding extension.]
+        td[For an entity named e[person] ModuleStudio does not only generate corresponding e[Person] classes,
+        but also an entity named e[PersonMetaData] for managing the meta data entities.]
+    ]
+]
+
+section3[Entity field]
+
+section4[General field settings]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Entity field]
+        td[Field must be assigned to an entity.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Entity field]
+        td[Every field must have a name.]
+        td[Field name must have a length of at least two chars. Should have more than three chars.]
+    ]
+    tr[
+        td[Entity field]
+        td[Field names must be unique.]
+        td[]
+    ]
+    tr[
+        td[Entity field]
+        td[Field name is a reserved identifier (module, type, func, lang, theme).]
+        td[These are reserved vars in traditional Zikula extensions.]
+    ]
+    tr[
+        td[Entity field]
+        td[Field name is a reserved identifier (_c, _a, _l).]
+        td[These are reserved vars in the zOO framework.]
+    ]
+    tr[
+        td[Entity field]
+        td[Field name is a reserved database keyword.]
+        td[ModuleStudio prevents the usage of keywords which are reserved in some database systems. Background
+        is that there are no column prefixes anymore. For a list of all keywords see ref:ReservedDBKeywords[the
+        following section].]
+    ]
+    tr[
+        td[Entity field]
+        td[Mandatory fields may not be nullable, too.]
+        td[Occurs if you try to activate both e[mandatory] and e[nullable] properties for a field.]
+    ]
+]
+
+section4:ReservedDBKeywords[Reserved database keywords]
+
+The following list has been merged and includes therefore all keywords of all supported DBMS.
+
+ul[
+    item[abort, access, action, activate, add, after, alias, all, allocate, allow, alter, analyse, analyze,
+    and, any, arraylen, as, asc, asensitive, associate, asutime, at, attach, attributes, audit, authorization,
+    autoincrement, aux, auxiliary, avg]
+    item[backup, before, begin, between, bigint, binary, blob, both, break, browse, bufferpool, bulk,
+    by]
+    item[cache, call, called, capture, cardinality, cascade, cascaded, case, cast, ccsid, change, char,
+    character, check, checkpoint, clone, close, cluster, clustered, coalesce, collate, collection, collid,
+    column, comment, commit, committed, compress, compute, concat, condition, conflict, connect, connection,
+    confirm, constraint, contains, containstable, continue, controlrow, convert, count, count_big, create,
+    cross, current, current_date, current_lc_ctype, current_path, current_schema, current_server, current_time,
+    current_timestamp, current_timezone, current_user, cursor, cycle]
+    item[data, database, databases, datapartitionname, datapartitionnum, date, day, days, day_hour, day_microsecond,
+    day_minute, day_second, db2general, db2genrl, db2sql, dbcc, dbinfo, dbpartitionname, dbpartitionnum,
+    deallocate, dec, decimal, declare, default, defaults, deferrable, deferred, definition, delayed,
+    delete, dense_rank, denserank, deny, desc, describe, descriptor, detach, deterministic, diagnostics,
+    disable, disallow, disconnect, disk, distinct, distinctrow, div, distributed, do, document, double,
+    drop, dssize, dummy, dual, dynamic]
+    item[
+    each, editproc, else, elseif, enable, encoding, encryption, end, enclosed, end-exec, ending, erase,
+    errlvl, errorexit, escape, escaped, every, except, exception, excluding, exclusive, exec, execute,
+    exists, exit, explain, external, extract]
+    item[fail, false, fenced, fetch, fieldproc, file, final, fillfactor, float, float4, float8, floppy,
+    for, force, foreign, free, freetext, freetexttable, freeze, from, full, fulltext, function]
+    item[general, generated, get, glob, global, go, goto, grant, graphic, group]
+    item[having, handler, hash, hashed_value, having, high_priority, hint, hold, holdlock, hour, hours,
+    hour_microsecond, hour_minute, hour_second]
+    item[identified, identity, identitycol, identity_insert, if, ignore, ilike, immediate, in, including,
+    inclusive, increment, index, indexed, indicator, inf, infile, infinity, inherit, initial, initially,
+    inner, inout, insensitive, insert, instead, int, int1, int2, int3, int4, int8, integer, integrity,
+    intersect, interval, into, is, isnull, isobid, isolation, iterate]
+    item[jar, java, join]
+    item[keep, key, keys, kill]
+    item[label, language, lateral, lc_ctype, leading, leave, left, level, like, limit, lineno, lines,
+    linktype, load, local, localdate, locale, localtime, localtimestamp, locator, locators, lock, lockmax,
+    locksize, long, longblob, longtext, loop, low_priority]
+    item[maintained, match, materialized, max, maxextents, maxvalue, mediumblob, mediumint, mediumtext,
+    microsecond, microseconds, middleint, min, minus, minute, minutes, minute_microsecond, minute_second,
+    minvalue, mirrorexit, mod, mode, modifies, modify, month, months]
+    item[nan, national, natural, new, new_table, nextval, no, noaudit, nocache, nocheck, nocompress,
+    nocycle, nodename, nodenumber, nomaxvalue, nominvalue, nonclustered, none, noorder, normalized, not,
+    notfound, notnull, nowait, no_write_to_binlog, null, nullif, nulls, number, numeric, numparts]
+    item[obid, of, off, offline, offset, offsets, old, old_table, on, once, online, only, open, opendatasource,
+    openquery, openrowset, optimization, optimize, option, optionally, or, order, out, outer, outfile,
+    over, overlaps, overriding]
+    item[package, padded, pagesize, parameter, part, partition, partitioned, partitioning, partitions,
+    password, path, pctfree, percent, perm, permanent, piecesize, placing, pipe, plan, pragma, position,
+    precision, prepare, prevval, primary, print, prior, priqty, privileges, proc, procedure, processexit,
+    program, psid, public, purge]
+    item[query, queryno]
+    item[raid0, raise, raiserror, range, rank, raw, read, reads, readtext, real, reconfigure, recovery,
+    references, referencing, refresh, regexp, reindex, release, rename, repeat, repeatable, replace,
+    replication, require, reset, resignal, resource, restart, restore, restrict, result, result_set_locator,
+    return, returns, revoke, right, rlike, role, rollback, round_ceiling, round_down, round_floor, round_half_down,
+    round_half_even, round_half_up, round_up, routine, row, rowcount, rowguidcol, rowid, rowlabel, rownum,
+    rownumber, rows, rowset, row_number, rrn, rule, run]
+    item[save, savepoint, schema, schemas, scratchpad, scroll, search, second, seconds, second_microsecond,
+    secqty, security, select, sensitive, separator, sequence, serializable, session, session_user, set,
+    setuser, share, show, shutdown, signal, similar, simple, size, smallint, snan, some, soname, source,
+    spatial, specific, sql, sqlbuf, sqlexception, sqlid, sqlstate, sqlwarning, sql_big_result, sql_calc_found_rows,
+    sql_small_result, ssl, stacked, standard, start, starting, statement, static, statistics, statment,
+    stay, stogroup, stores, straight_join, style, substring, successful, sum, summary, synonym, sysdate,
+    sysfun, sysibm, sysproc, system, system_user]
+    item[table, tablespace, tape, temp, temporary, terminated, textsize, then, time, timestamp, tinyblob,
+    tinyint, tinytext, to, top, trailing, tran, transaction, trigger, trim, true, truncate, tsequal,
+    type]
+    item[uid, uncommitted, undo, union, unique, unlock, unsigned, until, update, updatetext, usage, use,
+    user, using, utc_date, utc_time, utc_timestamp]
+    item[vacuum, validate, validproc, value, values, varbinary, varchar, varchar2, varcharacter, variable,
+    variant, varying,
+    vcat, verbose, version, view, virtual, volatile, volumes]
+    item[waitfor, when, whenever, where, while, with, without, write, writetext, work]
+    item[x509, xmlelement, xmlexists, xmlnamespaces, xor]
+    item[year, years, year_month]
+    item[zerofill]
+]
+
+section4[Extension-related field settings]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Entity field]
+        td[Entities with sluggable behaviour may not include a field named slug.]
+        td[If a field is named e[slug] it gets this error as soon as at least one field in this entity
+        has set the e[sluggable position] attribute to a number greater than 0. ModuleStudio creates this
+        slug field automatically in addition to the other fields in the model.]
+    ]
+    tr[
+        td[Entity field]
+        td[The sluggable position values must be unique per entity.]
+        td[If fields are included into a slug by setting a value greater than 0, this value must be unique
+        per entity. The position defines in which order the field values are considered as permalink
+        parts.]
+    ]
+    tr[
+        td[Entity field]
+        td[Only one field per entity may store the sortable position.]
+        td[Can occur if one tries to use multiple integer or user fields as position for the sortable extension.]
+    ]
+    tr[
+        td[Entity field]
+        td[The sortable position may not be the sortable group, too.]
+        td[As soon as a field is used as sortable position it can not also act as the grouping criteria
+        at the same time.]
+    ]
+    tr[
+        td[Entity field]
+        td[Only one field per entity may store the sortable group.]
+        td[Optional grouping of sorting is only possible with one field as criteria.]
+    ]
+    tr[
+        td[Entity field]
+        td[Only one field per entity may store the version.]
+        td[Can appear for integer and datetime fields if you enabled the e[version] property for more
+        than one field in the same entity.]
+    ]
+    tr[
+        td[Entity field]
+        td[Entities with a version field should use optimistic locking.]
+        td[Can appear for integer and datetime fields with the e[version] property enabled. You must
+        set the locking type of the corresponding entity to either e[OPTIMISTIC] or e[PAGELOCK_OPTIMISTIC],
+        depending on whether you want support the Zikula PageLock functionality in addition or not.]
+    ]
+    tr[
+        td[Entity]
+        td[Entities with optimistic locking must contain a field declared as version field.]
+        td[The opposite rule to ensure that every entity using optimistic locking has a version field
+        for storing and comparison the version as locking criteria.]
+    ]
+    tr[
+        td[Entity field]
+        td[The version attribute can not be combined with a primary key.]
+        td[A field can only act as either a version or a primary key, not both at the same time.]
+    ]
+    tr[
+        td[Entity field]
+        td[Entities with geographical extension have additional fields names (longitude, latitude). Thus
+        your (fields may not contain these names | reference may not contain these (source | target) aliases).]
+        td[If an entity has activated the e[geographical] extension ModuleStudio creates these fields
+        automatically in addition to the other fields in the model (as well as some usage of geolocation
+        when creating new entities).]
+    ]
+    tr[
+        td[Entity field]
+        td[Entities with translatable fields have an additional field for the language code (locale).
+        your (fields may not contain this name | reference may not contain this (source | target) alias).]
+        td[If at least one entity field has activated the e[translatable] extension ModuleStudio creates
+        a field named e[locale] automatically in addition to the other fields in the model.]
+    ]
+    tr[
+        td[Entity field]
+        td[Entities with tree extension have additional fields names (lft, lvl, rgt, root, parent, children).
+        your (fields may not contain these names | reference may not contain these (source | target) aliases).]
+        td[If an entity has activated the e[tree] extension ModuleStudio creates these fields
+        automatically in addition to the other fields in the model (as well as a convenient hierarchy
+        management page). This does apply on both tree strategies (nested set as well as closure).]
+    ]
+    tr[
+        td[Entity field]
+        td[Entities with attributes have an additional field for referencing these (attributes). Thus
+        your (fields may not contain this name | reference may not contain this (source | target) alias).]
+        td[If an entity has activated the e[attributable] extension ModuleStudio creates an additional
+        relation to store the collection of attributes for a certain entity.]
+    ]
+    tr[
+        td[Entity field]
+        td[Entities with categories have an additional field for referencing these (categories). Thus
+        your (fields may not contain this name | reference may not contain this (source | target) alias).]
+        td[If an entity has activated the e[categorisable] extension ModuleStudio creates an additional
+        relation to store the collection of categories for a certain entity.]
+    ]
+    tr[
+        td[Entity field]
+        td[Entities with meta data have an additional field for referencing these (metaData). Thus your
+        (fields may not contain this name | reference may not contain this (source | target) alias).]
+        td[If an entity has activated the e[meta data] extension ModuleStudio creates an additional
+        relation to store the meta data for a certain entity.]
+    ]
+    tr[
+        td[Entity field]
+        td[Entities with Zikula standard fields extension have an additional additional fields (createdDate, createdUserId, updatedDate, updatedUserId). Thus
+        your (fields may not contain these names | reference may not contain these (source | target) aliases).]
+        td[If an entity has activated the e[standard fields] extension ModuleStudio creates some additional
+        fields to store these for a certain entity.]
+    ]
+]
+
+section4[Numeric fields]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Integer and user fields]
+        td[The default value for an integer field must contain only digits.]
+        td[]
+    ]
+    tr[
+        td[Integer field]
+        td[The maximum length for an integer field is 18.]
+        td[Corresponds to a e[bigint] mapping in Doctrine 2.]
+    ]
+    tr[
+        td[Integer field]
+        td[Minimum value must not be larger than maximum value.]
+        td[]
+    ]
+    tr[
+        td[Integer field]
+        td[Entities with an aggregate field should use a locking strategy (optimistic or pessimistic read).]
+        td[If an integer field acts as aggregate field the corresponding entity must use one locking strategy
+        of e[OPTIMISTIC], e[PAGELOCK_OPTIMISTIC], e[PESSIMISTIC_READ], e[PAGELOCK_PESSIMISTIC_READ],
+        depending on whether you want support the Zikula PageLock functionality in addition or not.]
+    ]
+    tr[
+        td[Integer field]
+        td[Aggregate fields work only in combination with an outgoing and bidirectional one-to-many relationship with persist cascade.]
+        td[]
+    ]
+    tr[
+        td[Integer field]
+        td[Naming of aggregateFor attribute values must follow the syntax targetAlias#targetFieldName (for example views#amount).]
+        td[If an integer field acts as aggregate field the property e[aggregate for] must define the
+        target alias of corresponding outgoing and bidirectional one-to-many relationship with persist
+        cascade. After a e[# char] as delimiter the name of the target field (to be aggregated) follows.]
+    ]
+    tr[
+        td[Decimal field]
+        td[The default value for a decimal field must be a floating point number.]
+        td[]
+    ]
+    tr[
+        td[Decimal field]
+        td[The length (precision) of a decimal field must be greater than the scale.]
+        td[For example e[1234.12] is valid (4 > 2), but e[123.1234] is not.]
+    ]
+    tr[
+        td[Decimal field]
+        td[Minimum value must not be larger than maximum value.]
+        td[]
+    ]
+    tr[
+        td[Float field]
+        td[The default value for a float field must be a floating point number.]
+        td[]
+    ]
+    tr[
+        td[Float field]
+        td[Minimum value must not be larger than maximum value.]
+        td[]
+    ]
+]
+
+section4[String and text fields]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[All string fields]
+        td[String size must not be smaller than 1.]
+        td[Occurs if length is set to 0.]
+    ]
+    tr[
+        td[All string fields]
+        td[String size must be larger than minimum length.]
+        td[If you set a minimum length it must not be larger than the actual field length.]
+    ]
+    tr[
+        td[String field]
+        td[String length for country codes must be at least 2 chars.]
+        td[Occurs if you activate the e[country] property for a field with a length smaller than 2.]
+    ]
+    tr[
+        td[String field]
+        td[String length for languages must be at least 5 chars.]
+        td[Occurs if you activate the e[language] property for a field with a length smaller than 5.]
+    ]
+    tr[
+        td[String field]
+        td[String length for HTML colour codes must be at least 7 chars.]
+        td[Occurs if you activate the e[html colour] property for a field with a length smaller than
+        7.]
+    ]
+    tr[
+        td[String field]
+        td[A string can only be one of country, language, htmlcolour and password.]
+        td[]
+    ]
+    tr[
+        td[String field]
+        td[String fields for countries, languages and colour must also activate the nospace validator.]
+        td[The e[nospace] property ensures that spaces are not allowed as part of the input value. The
+        generator could use it without having set this to true, but as the setting is there anyway the
+        proper solution is to enforce the user activating it for consistency.]
+    ]
+    tr[
+        td[String field]
+        td[String length must not be greater than 255; for bigger sizes use text fields.]
+        td[]
+    ]
+    tr[
+        td[Email field]
+        td[The default value for an email field must be a valid email address.]
+        td[]
+    ]
+    tr[
+        td[Url field]
+        td[The default value for an url field must be a valid url.]
+        td[Allowed protocols are http, ftp and https.]
+    ]
+]
+
+section4[Date and time fields]
+
+This section includes rules which apply only for datetime, date and time fields.
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[All date fields]
+        td[A value can not be in the past and in the future at the same time.]
+        td[You can only activate either e[past] or e[future] validators.]
+    ]
+    tr[
+        td[All date fields]
+        td[The timestampable change trigger field must point to the name of a field or a relation (property.field).]
+        td[If the e[timestampable] property for a field has been set to e[CHANGE] then this error can
+        appear to remind you to set also the required attribute e[timestampableChangeTriggerField]. Either
+        you did not set anything there or the value does neither correspond to the name of an entity field
+        nor an incoming relation.]
+    ]
+    tr[
+        td[a[ValidationIntegerForVersion]Datetime field]
+        td[It would be preferable to use an integer column as version field, as datetimes could potentially lead to conflicts for high traffic sites depending on the timestamp resulution in the database.]
+        td[If you use datetime fields with e[version] set to true this warning will appear. As the Doctrine
+        2 manual points out integers are more robust against race conditions in high traffic environments
+        where timestamp comparisons are limited due to how precise the used database does it. Therefore
+        you should prefer integer fields for storing versions except side conditions require the usage
+        of datetime fields for that.]
+    ]
+    tr[
+        td[Datetime field]
+        td[The default value for a datetime field must conform to the pattern YYYY-MM-DD HH:MM:SS .]
+        td[]
+    ]
+    tr[
+        td[Date field]
+        td[The default value for a date field must conform to the pattern YYYY-MM-DD .]
+        td[]
+    ]
+    tr[
+        td[Time field]
+        td[The default value for a time field must conform to the pattern HH:MM:SS .]
+        td[]
+    ]
+]
+
+section4[Other fields]
+
+table[
+    tr[
+        td[Upload field]
+        td[The allowedExtensions attribute must contain a comma separated list of the file types to be allowed during the upload (example: gif, jpeg, jpg, png). Note that the separator is ', ' including the space char.]
+        td[]
+    ]
+    tr[
+        td[Upload field]
+        td[There must not exist a field named fooMeta because this is reserved for an automatic field storing meta data for this upload.]
+        td[]
+    ]
+]
+
+
+section3[Relationship]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Relationship]
+        td[Relation must be assigned to a model container.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Relationship]
+        td[Every relation must have a (source | target) entity.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+]
+
+section4[Join relationship]
+
+Includes basically all relationships in the data layer except inheritance.
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Join relationship]
+        td[Every join relation must have a (source | target) alias.]
+        td[Aliases must have a length of at least two chars. Recommended are at least four chars.]
+    ]
+    tr[
+        td[Join relationship]
+        td[Relationship source aliases must be unique for all incoming relations of an entity.]
+        td[]
+    ]
+    tr[
+        td[Join relationship]
+        td[Relationship target aliases must be unique for all outgoing relations of an entity.]
+        td[]
+    ]
+    tr[
+        td[Join relationship]
+        td[The (sourceField | targetField) attribute must contain either 'id' for automatic primary key
+        or a comma separated list of (source | target) fields to be referenced. Note that the separator
+        is ', ' including the space char.]
+        td[]
+    ]
+    tr[
+        td[Join relationship]
+        td[The amount of join columns must be equal for association source and target sides.]
+        td[If source or target field are not e[id] ModuleStudio splits both values by the separator
+        above and compares the amount of elements on both sides. This enables joins over multiple fields.]
+    ]
+    tr[
+        td[Join relationship]
+        td[The field e[sourceField | targetField] must be an integer field with a length of 11.]
+        td[Is only checked if the (source | target) field is named e[id].]
+    ]
+    tr[
+        td[Join relationship]
+        td[The fields e[sourceField] and e[targetField] must have the same type and length values.]
+        td[Is only checked if the source and target fields are both not named e[id].]
+    ]
+    tr[
+        td[Join relationship]
+        td[Self relation must not reference the e[sourceField] field for both source and target.]
+        td[For self relation the source field must not be equal to the target field (as the database
+        needs two fields in order to store both sides).]
+    ]
+    tr[
+        td[Join relationship]
+        td[Between two entities there must not be multiple join relations with cascade options.]
+        td[]
+    ]
+]
+
+section4[One to one relationship]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[One to one relationship]
+        td[The edit type ACTIVE_CHOOSE_PASSIVE_NONE is only valid for many to many relationships.]
+        td[]
+    ]
+    tr[
+        td[One to one relationship]
+        td[The edit type ACTIVE_EDIT_PASSIVE_NONE is only valid for many to many relationships.]
+        td[]
+    ]
+]
+
+section4[Many to one relationship]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Many to one relationship]
+        td[The edit type ACTIVE_CHOOSE_PASSIVE_NONE is only valid for many to many relationships.]
+        td[]
+    ]
+    tr[
+        td[Many to one relationship]
+        td[The edit type ACTIVE_EDIT_PASSIVE_NONE is only valid for many to many relationships.]
+        td[]
+    ]
+    tr[
+        td[Many to one relationship]
+        td[A many-to-one relation must not be bidirectional.]
+        td[]
+    ]
+]
+
+section4[One to many relationship]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[One to many relationship]
+        td[The edit type ACTIVE_CHOOSE_PASSIVE_NONE is only valid for many to many relationships.]
+        td[]
+    ]
+    tr[
+        td[One to many relationship]
+        td[The edit type ACTIVE_EDIT_PASSIVE_NONE is only valid for many to many relationships.]
+        td[]
+    ]
+    tr[
+        td[One to many relationship]
+        td[The indexBy attribute points to an invalid field of the target entity.]
+        td[Checks whether the target entity contains a field equally named like the e[indexBy] property.]
+    ]
+    tr[
+        td[One to many relationship]
+        td[IndexBy fields must be unique.]
+        td[The target entity field used for e[indexBy] must have e[unique] validator enabled.]
+    ]
+    tr[
+        td[One to many relationship]
+        td[The orderBy attribute points to an invalid field of the target entity.]
+        td[Checks whether the target entity contains a field equally named like the e[orderBy] property.
+        Currently disabled because also expressions like e[status ASC, cr_date DESC] are allowed. Will
+        probably be removed in a future version.]
+    ]
+]
+
+section4[Many to many relationship]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Many to many relationship]
+        td[The indexBy attribute points to an invalid field of the target entity.]
+        td[Checks whether the target entity contains a field equally named like the e[indexBy] property.]
+    ]
+    tr[
+        td[Many to many relationship]
+        td[IndexBy fields must be unique.]
+        td[The target entity field used for e[indexBy] must have e[unique] validator enabled.]
+    ]
+    tr[
+        td[Many to many relationship]
+        td[The orderBy attribute points to an invalid field of the target entity.]
+        td[Checks whether the target entity contains a field equally named like the e[orderBy] property.
+        Currently disabled because also expressions like e[status ASC, cr_date DESC] are allowed. Will
+        probably be removed in a future version.]
+    ]
+    tr[
+        td[Many to many relationship]
+        td[A many-to-many relation must have the refClass attribute defined.]
+        td[The e[reference class] defines the name of the entity managing the many to many relationship.
+        If for example many e[persons] have many e[addresses], you could choose e[personAddress] as reference
+        class.]
+    ]
+    tr[
+        td[Many to many relationship]
+        td[The refClass attribute must be unique for all relations.]
+        td[]
+    ]
+    tr[
+        td[Many to many relationship]
+        td[The refClass attribute must not be equal to any entity name.]
+        td[The generator creates additional entity classes so unique naming is ensured to prevent naming
+        collisions.]
+    ]
+]
+
+section4[Inheritance relationship]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Inheritance relationship]
+        td[Self relations are not allowed for inheritance relationships.]
+        td[]
+    ]
+    tr[
+        td[Inheritance relationship]
+        td[The discriminatorColumn attribute must not be empty for inheritance relations.]
+        td[Per default this attribute has the value e[discr] so this shouldn't happen as long as you
+        don't delete this value. ModuleStudio uses this value to tell Doctrine 2 where to store the type
+        of stored entities.]
+    ]
+    tr[
+        td[Inheritance relationship]
+        td[Please rename the e[discriminatorColumn] field as it is reserved for the discriminator column, or change corresponding attribute.]
+        td[Happens if the target entity includes a field with the same name as specified in the e[discriminator
+        setting].]
+    ]
+    tr[
+        td[Model container with inheritance relationships]
+        td[Inheritance cycles are not allowed.]
+        td[Recursive check to detect cycles within inheritance hierarchies.]
+    ]
+]
+
+section3[Entity index]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Entity index]
+        td[Index must be assigned to an entity.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Entity index]
+        td[Every index must have a name.]
+        td[The index name must have a length of at least two chars. Recommended are at least four
+        chars.]
+    ]
+    tr[
+        td[Entity index]
+        td[Every index must contain at least one item referencing an entity field.]
+        td[]
+    ]
+    tr[
+        td[Entity index]
+        td[The length of all index fields must not be higher than 333.]
+        td[The limit is 1000 bytes, while UTF-8 requires three bytes for each char.]
+    ]
+    tr[
+        td[Entity index]
+        td[Index names must be unique per entity.]
+        td[]
+    ]
+    tr[
+        td[Entity index]
+        td[Index item names must be unique per index.]
+        td[]
+    ]
+    tr[
+        td[Entity index item]
+        td[The index item must be assigned to an index.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Entity index item]
+        td[Every index item must have the same name as the referenced entity field.]
+        td[This occurs if no equally named field is found in the entity.]
+    ]
+]
+
+section3[Variables]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Variable container]
+        td[Every var container must have a name.]
+        td[]
+    ]
+    tr[
+        td[Model container with variable containers]
+        td[Var container names must be unique.]
+        td[]
+    ]
+    tr[
+        td[Model container with variable containers]
+        td[Var container sort positions must be unique.]
+        td[]
+    ]
+    tr[
+        td[Variable container]
+        td[Every var container must contain at least one variable.]
+        td[]
+    ]
+    tr[
+        td[Variable container]
+        td[Var container must be assigned to a model container.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Variable]
+        td[The var must be assigned to a container.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Variable]
+        td[Every var must have a name.]
+        td[The var name must have a length of at least two chars. Recommended are at least four
+        chars.]
+    ]
+    tr[
+        td[Variable]
+        td[A var must not have the same name as an entity.]
+        td[]
+    ]
+    tr[
+        td[List var]
+        td[The list must contain at least one item.]
+        td[]
+    ]
+]
+
+section3[Other elements]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Calculated field]
+        td[The field must rely on at least one derived field.]
+        td[Not relevant yet, this is for future.]
+    ]
+    tr[
+        td[Entity event listener]
+        td[The listener must contain at least one operation.]
+        td[Not relevant yet, this is for future.]
+    ]
+    tr[
+        td[Transform object]
+        td[Every transformation must be assigned to an event listener.]
+        td[Not relevant yet, this is for future. Should not occur in practice, this is just for completeness.]
+    ]
+]
+
+section2:ValidationControllerLayer[Controller layer]
+
+section3[Controller container]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Controller container]
+        td[The controller container must contain at least one controller.]
+        td[]
+    ]
+    tr[
+        td[Controller container with controllers]
+        td[You must have an admin controller for hook subscriber functionality.]
+        td[Since Zikula 1.3 it is highly recommended to have an admin area as there is an additional
+        page for defining hook assignments for different areas.]
+    ]
+    tr[
+        td[Controller container with controllers]
+        td[Controller names must be unique.]
+        td[For example there may not be two controllers which are both named e[admin].]
+    ]
+    tr[
+        td[Controller container]
+        td[Please create an ajax controller including an arbitrary action, like main, because it is required
+        for processing your model properly.]
+        td[This happens if your model layer contains relationships or an entity with either user fields
+        or tree extension. As the generator creates additonal ajax methods in these cases it requires
+        an ajax controller for keeping this information also in the model for documentation.]
+    ]
+]
+
+section3[Controller]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Controller]
+        td[The controller must be assigned to a controller container.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Controller]
+        td[Every controller must have a name.]
+        td[Controller name must be longer than at least three chars. Should be more than five chars.]
+    ]
+    tr[
+        td[Custom controller]
+        td[Controller name must not contain underscores.]
+        td[Underscores are not allowed as they are used for class autoloading.]
+    ]
+    tr[
+        td[Custom controller]
+        td[Controller name must not be Admin, User, Account, Ajax, Search or Init.]
+        td[These are reserved names and may therefore not be used for custom controllers.]
+    ]
+    tr[
+        td[Controller]
+        td[Every controller must contain at least one action.]
+        td[]
+    ]
+    tr[
+        td[Controller with actions]
+        td[There must not exist more than one (main | view | display | edit | delete) action in one controller.]
+        td[]
+    ]
+    tr[
+        td[Controller with actions]
+        td[Names of custom states in one controller must be unique.]
+        td[]
+    ]
+]
+
+section3[Action]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Action]
+        td[The action must be assigned to a controller.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Custom action]
+        td[The action must have a name.]
+        td[Action name must not be e[New]. Must have a length of at least four chars, whereby at least
+        five chars are recommended.]
+    ]
+    tr[
+        td[Custom action]
+        td[Action name must not be Main, View, Display, Edit or Delete.]
+        td[These are reserved names and may therefore not be used for custom actions.]
+    ]
+    tr[
+        td[Action]
+        td[Every action must be assigned to an action handler.]
+        td[Not active yet as the controller editor needs some additional features first.]
+    ]
+]
+
+section3[Action handler]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Action handler]
+        td[Every action handler must have a name.]
+        td[Must have a length of at least four chars, whereby at least six chars are recommended.]
+    ]
+    tr[
+        td[Action handler]
+        td[Action handler name must not be List, Detail or Edit.]
+        td[These are reserved names and may therefore not be used for custom handlers.]
+    ]
+    tr[
+        td[Action handler]
+        td[The action handler must contain at least one action events.]
+        td[]
+    ]
+    tr[
+        td[Action handler with events]
+        td[The action handler must contain at least one start event.]
+        td[There must not exist more than one start event in one action handler.]
+    ]
+    tr[
+        td[Action handler]
+        td[Every action handler must have the same name as the main entity it refers to (e.g. e[CustomerHandler]).]
+        td[Not active yet as the controller editor needs some additional features first.]
+    ]
+]
+
+section3[Action event]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Action event]
+        td[Action event must be assigned to an action handler.]
+        td[Should not occur in practice, this is just for completeness.]
+    ]
+    tr[
+        td[Action event]
+        td[Every action event must have a name.]
+        td[Must have a length of at least four chars, whereby at least six chars are recommended.]
+    ]
+]
+
+section3[Transition]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Transition]
+        td[Transition must be assigned to a controller container.]
+        td[Should not occur in practice, this is just for completeness. Inactive at the moment anyway.]
+    ]
+    tr[
+        td[Transition]
+        td[Every transition must have a name.]
+        td[Must have a length of at least two chars, whereby at least four chars are recommended.]
+    ]
+    tr[
+        td[Transition]
+        td[Every transition must have a (source | destination) action.]
+        td[A transition can not link to itself (this is inactive at the moment though).]
+    ]
+    tr[
+        td[Controller container with transitions]
+        td[There must not exist more than one transition between two actions.]
+        td[]
+    ]
+]
+
+section2:ValidationViewLayer[View layer]
+
+section3[View container]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[View container]
+        td[The view container must contain at least one view.]
+        td[This rule is currently not active as the view editor is not ready yet.]
+    ]
+    tr[
+        td[View container with views]
+        td[View names must be unique.]
+        td[For example there may not be two views which are both named e[display].]
+    ]
+]
+
+section3[View]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[View]
+        td[Every view must have a name.]
+        td[View name must be longer than at least three chars. Should be more than five chars.]
+    ]
+    tr[
+        td[View]
+        td[Every view must have a root panel.]
+        td[]
+    ]
+    tr[
+        td[View]
+        td[Every view must have the same name as the main entity it's controller refers to (e.g. e[CustomerView]).]
+        td[]
+    ]
+]
+
+section3[Root panel]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Root panel]
+        td[Every root panel must have a presenter.]
+        td[]
+    ]
+    tr[
+        td[Root panel]
+        td[Every root panel must contain at least one composite container.]
+        td[]
+    ]
+    tr[
+        td[Root panel]
+        td[Every view must contain at least one submit activator.]
+        td[Ideally every view should contain also at least one cancel activator.]
+    ]
+    tr[
+        td[Root panel]
+        td[Check]
+        td[]
+    ]
+]
+
+section3[Other UI elements]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Composite container]
+        td[Composite container must be assigned to a root panel.]
+        td[]
+    ]
+    tr[
+        td[Tabbed pane]
+        td[A tabbed pane must contain at least two child containers.]
+        td[]
+    ]
+    tr[
+        td[Sub container]
+        td[Child container must be assigned to a parent container.]
+        td[]
+    ]
+    tr[
+        td[Sub container]
+        td[Every sub container must contain at least one field.]
+        td[]
+    ]
+    tr[
+        td[Field]
+        td[Field must be assigned to a container.]
+        td[]
+    ]
+    tr[
+        td[Form label]
+        td[Label must point to a field.]
+        td[]
+    ]
+]
+
+section3[Layout order]
+
+table[
+    tr[
+        td[Context]
+        td[Check]
+        td[Remarks]
+    ]
+    tr[
+        td[Layout order]
+        td[Layout order must be assigned to a presentation container.]
+        td[]
+    ]
+    tr[
+        td[Layout order]
+        td[Every transition must have a (source | destination) container.]
+        td[A layout order can not link to itself.]
+    ]
+    tr[
+        td[View container with layout orders]
+        td[There must not exist more than one layout order between two containers.]
+        td[]
+    ]
+]
+
+section2:ValidationWorkflowLayer[Workflow layer]
+
+The workflow layer is not implemented yet. This section is just a dummy for future.
+
+section:ValidationNotes[Additional notes]
+
+None yet.

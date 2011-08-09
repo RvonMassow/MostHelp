@@ -1,0 +1,56 @@
+chapter:Customisation[Customisation and maintenance]
+
+section:CustomisationIntroduction[Introduction]
+
+This section gives a few hints for changing arbitrary things in your generated applications while keeping
+in sync with upcoming releases of Zikula and ModuleStudio.
+
+section:CustomisationMaintenance[Long-term maintenance]
+
+To prevent losing the ref:IntroductionBenefits[benefits of ModuleStudio] in future you have to follow
+a few simple basic rules in your development process.
+
+section2:CustomisationConsistency[Keep consistent]
+
+When using ModuleStudio then your model is not only some sort of bootstrapping or documentation artifact.
+The model describes or better is the real application. Therefore you should do all important changes (like
+adding or moving table columns, renaming an entity or other amendments, introducing a new controller
+action, etc.) on model level although it might look a bit inconvenient first. Do not let your model become
+obsolete, as this would mean losing lots of advantages. You will thank yourself when generating again
+with a newer version.
+
+section2:CustomisationDocumentation[Document your changes]
+
+Document your changes to simplify the merging process you will have to do after regeneration. For example
+after you added some fields later on, or you got a new generator version fixing some bugs, and so on
+you will want to know again where you did which changes for which reason. Usually a good place for this
+documentation is e[modules/YourModule/docs/customisation.txt].
+
+section2:CustomisationOverriding[Use overriding]
+
+All cosmetic enhancements can be done by template overriding in Zikula. Placing templates in e[/config/templates/YourMod/...]
+for example is a good idea for development.
+
+If you need display-oriented additional logic, simply create a view plugin encapsulating your efforts
+in a file which is not affected by the generator at all.
+
+section2:CustomisationManualCode[Code additions]
+
+Perform logical enhancements in the generated implementation classes. These extend from abstract base
+classes containing the actual generator implementation code. So almost all concrete classes are empty
+waiting for your custom extension.
+
+The file e[lib/YourModule/Util/Controller.php] can be used to enable/disable specific controller actions
+(like view, display, ...) for particular entity types within custom conditions. See the parent class
+for the base implementation.
+
+section2:CustomisationVersioning[Use versioning]
+
+Using a version control system, like git or svn, gives you another additional level of rollback safety
+and is a good idea anyway.
+
+section:CustomisationNotes[Additional notes]
+
+Please see also link[http://modulestudio.de/en/tutorial/structure-and-customisation-of-generated-applications.html][this
+tutorial]. Some parts are a little outdated due to the migration from Doctrine 1.3 to 2.1, but this shouldn't
+be a problem for the understandability of the overall messages shown there.

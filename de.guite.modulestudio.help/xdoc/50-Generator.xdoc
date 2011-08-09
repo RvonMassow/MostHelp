@@ -1,0 +1,1844 @@
+chapter:Generator[Application generator]
+
+section:GeneratorIntroduction[Introduction]
+
+The main use case for ModuleStudio application models is the creation of Zikula extensions. This section
+describes how the generator works and which artifacts are created from which model elements.
+
+ModuleStudio brings also ref:OtherCartridgesIntroduction[other generator cartridges] for creating further
+information with regards to documentation and reporting tasks.
+
+section:GeneratorBasicIdea[Basic idea]
+
+Every application consists of different types of code parts. While some code is unique for each application,
+most parts can be derived from that and is therefore very similar for a whole software systems family.
+Those code parts are known as e[boilerplate code].
+
+A very simple example will make this clear very quickly:
+
+code[PHP][
+    /**
+     * imagine some long comments about this class here
+     * @ORM\Entity ...
+     * some more annotations
+     */
+    class MyModule_Entity_Person extends Zikula_EntityAccess
+    {
+        /**
+         * imagine some long comments about this field here
+         * @ORM\Column ...
+         * some more annotations
+         */
+        protected $firstName;
+
+        /**
+         * imagine some long comments about this field here
+         * @ORM\Column ...
+         * some more annotations
+         */
+        protected $lastName;
+    }
+]
+
+This code has obviously not very much knowledge which is essential for this certain application. Reduced
+to what is really required from a functional view one would get something like:
+
+code[PHP][
+    entity person {
+        string firstName
+        string lastName
+    }
+]
+
+Thought a little further the generator helps reaching a constantly high code quality, as all implementation
+details are always considered completely. For example if a new extension is activated for an entity this
+is not forgotten anywhere inside the code.
+
+section:GeneratorHowItWorks[How it works]
+
+There is a tutorial showing how calling the generator within ModuleStudio looks like: link[http://modulestudio.de/en/tutorial/using-the-generator.html][Using
+the generator]. The only requirement is that you have opened your application model and there are no
+ref:Validation[validation errors] left.
+
+section2:GeneratorInputDialogs[Input dialogs]
+
+First you have to select which generator cartridges you want to execute.
+
+img[images/generator_cartridges.png][Cartridge selection][blockimg][border:1px solid black]
+
+After that you have to select which reports you want to create (only if you did not unselect the e[reporting]
+cartridge before).
+
+img[images/generator_reports.png][Report selection][blockimg][border:1px solid black]
+
+section:GeneratorWorkflow[The workflow]
+
+The rough steps of the generator workflow are as follows:
+
+ol[
+    item[Ask for input parameters (for example desired output folder, cartridges and reports).]
+    item[Empty output directory.]
+    item[Export dumps of editor diagrams (if reporting cartridge is selected).]
+    item[Read input model.]
+    item[Perform validation.]
+    item[Transformation to add primary and foreign key fields.]
+    item[Call generator inner workflow for each selected cartridge.]
+    item[Call code beautifier (if zclassic cartridge is selected).]
+]
+
+section:GeneratorReference[Generator reference]
+
+This reference goes through all available model elements as well as their properties, describing what
+the generator does with this information and which things are still missing in the created implementation.
+
+You will notice that there are also some elements included which are not showing up in ModuleStudio itself
+yet. This is for showing up the picture we have in mind when designing the modeling language as a whole.
+In most cases where the generator is not flexible yet this is caused by limitations in the current editors.
+
+Most screenshots in this section are taken from the example application called e[RecipeManager].
+
+section2:GeneratorApplicationLayer[Application layer]
+
+section3:GeneratorApplicationElements[Language elements]
+
+section4:GenRefNamedObject[Named object]
+
+This is the common base class of almost all model elements.
+
+It includes the following properties:
+
+ul[
+    item[e[name] - The name of the element.]
+    item[e[documentation] - A description for documenting the element.]
+]
+
+If a e[documentation] is defined for an entity this will be shown right after the heading of the corresponding
+view template. So you could for example add a description for the e[person] entity explaining what persons
+are and what information they store. If a user does then what the persons list he knows immediately what
+he is looking at.
+
+section4:GenRefApplication[Application]
+
+Represents an application described by the model.
+
+It includes the following basic properties:
+
+ul[
+    item[e[author] - The author of the application. Usually this is the full name of the developer.]
+    item[e[email] - The email address of the developer.]
+    item[e[license] - The license of this application. Defaults to LGPL. If either GPL or LGPL are used
+    the generator creates corresponding license files, too.]
+    item[e[url] - The homepage of the developer.]
+    item[e[version] - The application version. Must conform to the pattern e[x.y.z] - for example e[1.0.0]
+    which is also the default value. Will be used in the version class of the created extension.]
+]
+
+These basic fields are mainly used by the generator to create a meaningful file header.
+
+An application has some more fields for specifying specific aspects:
+
+ul[
+    item[e[applicationType] - The kind of application described by the model. See ref:GenRefApplicationType[below].]
+    item[e[interactiveInstallation] - A boolean specifying whether an interactive installation should
+    be used or not. The default value is e[false] which lets the generator create a normal installer without
+    any required user input. If you set it to true it will additionally generate some init templates
+    as well as a corresponding controller for the interactive installer.]
+    item[e[modelPath] - Physical file path to the application model. This is not used at all by the generator,
+    but only required by ModuleStudio to let the generator workflow find your model.]
+    item[e[prefix] - A prefix for all database tables of this application. Will be used in entity classes.]
+]
+
+An application may furthermore have the following references:
+
+ul[
+    item[e[controllers] - Allows referencing one or more ref:GenRefControllerContainer[controller layers].]
+    item[e[models] - Allows referencing one or more ref:GenRefModelContainer[model layers].]
+    item[e[referredApplications] - Allows referencing other applications. See ref:GenRefReferredApplication[below].]
+    item[e[views] - Allows referencing one or more ref:GenRefViewContainer[view layers].]
+]
+
+img[images/application_properties.png][Application properties][blockimg][border:1px solid black]
+
+section4:GenRefApplicationType[Application type]
+
+The kind of application described by the model.
+
+Can be one of the following options:
+
+ul[
+    item[e[WEB] - Web applications. This is the default value.]
+    item[e[NATIVE] - Native applications.]
+    item[e[EMBEDDED] - Embedded applications.]
+]
+
+At the moment this value is completely ignored by the generator. You should nevertheless keep it set
+to e[WEB] to be on the safe side for future.
+
+section4:GenRefReferredApplication[Referred application]
+
+Subclass of Application representing referred applications (e.g. other extensions which are incorporated
+by api calls). At the moment this is not used yet.
+
+section4:GenRefModelContainer[Model container]
+
+Container class for carrying elements in the model layer.
+
+A model container may have the following references:
+
+ul[
+    item[e[application] - Reference to the owning element.]
+    item[e[defaultDataSource] - Whether this container represents the default data source or not. The
+    default value is e[true] which can only be assigned to one data source which is treated like an internal
+    Zikula storage. Additional containers are processed as external data sources.]
+    item[e[entities] - Allows referencing one or more ref:GenRefEntity[entities].]
+    item[e[numExampleRows] - The amount of example rows to create for entities in this model layer. Default
+    value is 5.]
+    item[e[relations] - Allows referencing one or more ref:GenRefRelationship[relationships].]
+    item[e[variables] - Allows referencing one or more ref:GenRefVariables[variables].]
+]
+
+For each entity as well as for many to many relationships according classes are generated. More details
+are explained in the ref:GeneratorModelLayer[model layer section]. However external data sources are
+not treated correctly (see link[https://github.com/Guite/MostGenerator/issues/5][#5] for more information).
+
+section4:GenRefControllerContainer[Controller container]
+
+Container class for carrying elements in the controller layer.
+
+A controller container may have the following references:
+
+ul[
+    item[e[application] - Reference to the owning element.]
+    item[e[controllers] - Allows referencing one or more ref:GenRefController[controllers].]
+    item[e[handlers] - Allows referencing one or more ref:GenRefActionHandler[action handlers].]
+    item[e[modelContext] - Allows referencing one or more ref:GenRefModelContainer[model containers].]
+    item[e[processViews] - Allows referencing a ref:GenRefViewContainer[view container].]
+    item[e[transitions] - Allows referencing one or more ref:GenRefTransition[transitions].]
+]
+
+As all the container elements also the controller container is primarily a composite element containing
+a sublayer. The generator creates according controller classes, but does not separate different controller
+containers on code level.
+
+section4:GenRefViewContainer[View container]
+
+Container class for carrying elements in the view layer.
+
+A view container may have the following references:
+
+ul[
+    item[e[application] - Reference to the owning element.]
+    item[e[controller] - Allows referencing a ref:GenRefControllerContainer[controller container].]
+    item[e[layoutOrders] - Allows referencing one or more ref:GenRefLayoutOrder[layout orders].]
+    item[e[views] - Allows referencing one or more ref:GenRefView[views].]
+]
+
+As there is no view editor available yet this element is not relevant for the generator yet. Instead
+it only creates default templates foreach existing ref:GenRefAction[controller action] and ref:GenRefEntity[entity],
+as well as some common templates which are included or required for some extensions. There are no templates
+generated though for ref:GenRefCustomAction[custom actions] as this has not been implemented yet.
+
+section3:GeneratorApplicationCombinations[Combinations and edge cases]
+
+Multiple containers may not be considered properly in all implementation areas yet. There are some expressions
+which must be rechecked in order to limit some generation parts to certain container element instances only.
+So it can happen for example that several data layer artifacts from additional data sources are treated
+like if they were part of the primary internal one.
+
+Therefore it can also be that the relations between your containers are not reflected as you would expect
+it. To some degree this can also be a result of missing dependencies, like for example missing editor
+capabilities to design the view areas.
+
+So for the moment multiple containers are often treated like if they were one big merged container. With
+time this will change though, as more and more expressions become more explicite including or rejecting
+certain model elements more precisely.
+
+
+section2:GeneratorModelLayer[Model layer]
+
+The model layer in ModuleStudio has been designed for a precise description of entities and associations.
+To understand all the elements and properties please read the link[http://www.doctrine-project.org/projects/orm/2.1/docs/en][Doctrine
+2 documentation] before.
+
+section3:GeneratorModelElements[Language elements]
+
+section4:GenRefEntity[Entity]
+
+Represents an entity in the data layer which is mapped to a database table.
+
+It includes the following properties:
+
+ul[
+    item[e[attributable] - A boolean specifying whether this entity should have attributes or not. If
+    set to e[true] the generator creates an additional entity for managing the attributes. During ref:GenRefEditAction[edit]
+    actions it is possible to input values for three predefined attributes. These will also be shown again on
+    ref:GenRefDisplayAction[display] pages. There is no included support yet for arbitrary attributes
+    like they are known from the Categories administration area.]
+    item[e[categorisable] - A boolean specifying whether this entity should have categories or not. If
+    set to e[true] the generator creates an additional entity for managing the categories. During ref:GenRefEditAction[edit]
+    actions it is possible to select a desired category. This category will also be shown again on ref:GenRefDisplayAction[display]
+    pages. There is no included support yet for having multiple category registries, the generated implementation
+    does only use e[Main] as registry. Also there is no built-in filtering or permission scheme based
+    on categories implemented yet.]
+    item[e[changeTrackingPolicy] - How change detection is being done (see ref:GenRefEntityChangeTrackingPolicy[below]).
+    The default value is e[DEFERRED_IMPLICIT].]
+    item[e[geographical] - A boolean specifying whether the geographical behaviour is used or not. If
+    set to e[true] the generator will create two additional fields named e[latitude] and e[longitude].
+    Also it will consider them in all important application areas. During the creation of a new entity
+    with geographical support a nice geolocation feature is used to ask the user for his current location.
+    There is no integration of Google Maps or something else yet in the output, this will be done as
+    part of link[https://github.com/Guite/MostGenerator/issues/34][#34].]
+    item[e[identifierStrategy] - Whether and which ref:GenRefEntityIdentifierStrategy[identifier strategy] is applied.
+    The default value is e[NONE].]
+    item[e[leading] - A boolean specifying whether this is the primary (and default) entity or not.]
+    item[e[lockType] - Whether and which ref:GenRefEntityLockType[locking strategy] is applied.]
+    item[e[loggable] - A boolean specifying whether the loggable behavior is used or not. The generator
+    will create an additional entity for managing the log entries if set to e[true]. There is no user
+    interface for the version management yet (see link[https://github.com/Guite/MostGenerator/issues/30][#30]
+    for more information).]
+    item[e[mappedSuperClass] - A boolean specifying this is a mapped superclass or a normal entity. A
+    mapped super class is not able to store data. At the moment the generator creates many unrequired
+    things for mapped super classes though, like for example view templates. The only thing where mapped
+    super classes are already rejected correctly are repository classes.]
+    item[e[metaData] - A boolean specifying whether this entity should have support for meta data. If
+    set to e[true] the generator creates additional inclusion templates for displaying and changing corresponding
+    fields.]
+    item[e[nameMultiple] - Plural form of the name. The generator uses this for collections, list views
+    and other areas where multiple entities are used.]
+    item[e[readOnly] - A boolean specifying whether this entity is read only or not. If set to e[true] editing will not be possible.]
+    item[e[slugLength] - Length of slug field. Defaults to 255. An entity is sluggable as soon as at
+    least one of its fields set e[sluggable position] to a value greater than 0.]
+    item[e[slugSeparator] - Separator which will separate words in slug. Default value is e[-] like in
+    Zikula, too.]
+    item[e[slugStyle] - Which ref:GenRefEntitySlugStyle[slug style] is used.]
+    item[e[slugUnique] - A boolean specifying if the slug is unique or not. Default value is e[true].]
+    item[e[slugUpdatable] - A boolean specifying if the slug can be changed or not. Default value is
+    e[true].]
+    item[e[tree] - Whether and which tree strategy is applied. More information about what the generator creates for trees can
+    be found in the the section about ref:GenRefEntityTreeType[entity tree types].]
+    item[e[standardFields] - A boolean specifying whether the standard fields behaviour is used or not.
+    If set to e[true] the entity will get four additional fields for storing the id of the user who created
+    the item, the id of the user who did the last update, as well as the creation and update dates. This
+    information will be included on ref:GenRefDisplayAction[display] and ref:GenRefEditAction[edit] actions.]
+]
+
+a[GenRefEntityClassStructure]
+Normally all created classes are generated twice. Thereby an empty concrete class inherits from an abstract
+base class containing the whole generator code. The motivation behind this separation is that your own
+code keeps free from generated artifacts.
+
+Example:
+
+code[PHP][
+    class MyModule_Entity_Validator_Base_Person
+        extends MyModule_Validator
+    {
+        // generator code
+    }
+
+    class MyModule_Entity_Validator_Person
+        extends MyModule_Entity_Validator_Base_Person
+    {
+        // manual code
+    }
+]
+
+One exception for this scheme is ref:GenRefEntityInheritanceStructure[inheritance].
+
+Please note that arbitrary e[filtering is not possible at the moment] until FilterUtil has been link[http://code.zikula.org/core/ticket/3138][upgraded
+to support Doctrine 2].
+
+Whenever you want to change the default implementation you can add corresponding extensions. If you recognise
+that you are doing the same changes again and again please submit them as patches for the generator.
+
+An entity may have the following references:
+
+ul[
+    item[e[container] - Reference to the owning element.]
+    item[e[fields] - Allows referencing one or more ref:GenRefEntityField[entity fields].]
+    item[e[incoming] - Allows referencing one or more incoming ref:GenRefRelationship[relationships].]
+    item[e[indexes] - Allows referencing one or more ref:GenRefEntityIndex[indexes].]
+    item[e[listeners] - Allows referencing one or more ref:GenRefEntityEventListener[event listeners].]
+    item[e[outgoing] - Allows referencing one or more outgoing ref:GenRefRelationship[relationships].]
+]
+
+One additional note about slugs and permalinks: the generated short url handlers will understand different
+url schemes for the ref:GenRefDisplayAction[display pages] depending on the entity settings.
+
+ul[
+    item[Entities which are not sluggable use the identifier for display urls, for example e[mymodule/person/5.html].]
+    item[Entities with unique slugs use the slug for display urls, for example e[mymodule/person/william-smith.html].]
+    item[Entities with non-unique slugs combine both methods, for example e[mymodule/person/william-smith.5.html].]
+]
+
+section4:GenRefEntityField[Entity field]
+
+Represents an entity field in the data layer.
+
+This base class has the following children at the moment:
+
+ul[
+    item[ref:GenRefDerivedField[Derived fields] correspond to normal columns which are stored in a database.]
+    item[ref:GenRefCalculatedField[Calculated fields] correspond to fields which can calculate their
+    values based on other fields.]
+]
+
+An entity field may have the following references:
+
+ul[
+    item[e[entity] - Reference to the owning element.]
+]
+
+section4:GenRefDerivedField[Derived field]
+
+Represents an entity field in the data layer which is mapped to a database column. A derived field comes
+straight from the data source.
+
+A calculated field has the following properties in addition to the common ref:GenRefEntityField[entity
+field] settings: 
+
+ul[
+    item[e[defaultValue] - The default value of the field. This default value is used when creating new
+    entities with the ref:GenRefEditAction[edit action].]
+    item[e[leading] - A boolean specifying whether this is the primary (and default) field in this entity.
+    Default value is e[false]. Every entity must contain one leading field which is used for headings,
+    dropdown values and default sorting. Usually this is something like e[name] or e[title] - if a textual
+    field is part of the entity at all.]
+    item[e[mandatory] - A boolean specifying whether this field is mandatory or not. The default value
+    is e[true].]
+    item[e[nullable] - A boolean specifying whether the field may be null or not. The default value is
+    e[false]. A nullable field may not be mandatory at the same time.]
+    item[e[primaryKey] - A boolean specifying whether this is a primary key field or not. Default value
+    is e[false]. Usually there is no need to enable this for any fields as the generator adds primary
+    and foreign key fields automatically. The only use case where the manual definition of primary keys
+    makes sense is having composite keys. This should work in general with regards to the generated data
+    layer, but support on controller and view layers in the created application may not be prepared properly
+    yet for that.]
+    item[e[readonly] - A boolean specifying whether this a read only field or not. The default value is
+    e[false]. If set to e[true] then this field may not be changed during editing.]
+    item[e[sluggablePosition] - Position of this field in the created slugs. A value of 0 means that
+    this field is not part of the slug at all. If at least one field in an entity has a sluggable position
+    greater than 0 then this entity is considered as sluggable. In this case a permalink is built automatically
+    from all fields in ascending position. See the slug properties on ref:GenRefEntity[entity level]
+    for slug-related configuration options.]
+    item[e[sortableGroup] - A boolean specifying whether this field acts as grouping criteria for the
+    sortable extension. The default value is e[false].]
+    item[e[translatable] - A boolean specifying whether this field is translatable or not. The default
+    value is e[false]. If at least one field in an entity is translatable the generator creates an additional
+    class for managing the translation entities. Overall support for translations in the application
+    is almost finished (see link[https://github.com/Guite/MostGenerator/issues/31][#31] for more information).]
+    item[e[unique] - A boolean specifying whether this field is unique or not. The default value is e[false].
+    If set to e[true] then an additional validator cares for enforcing the unique constraint on client
+    and server level.]
+]
+
+All fields are implemented as entity class member vars. The following sections will look at the different
+field types in detail.
+
+section4:GenRefCalculatedField[Calculated field]
+
+Represents an entity field which can dynamically compute it's value based on other fields.
+
+A calculated field may have the following references in addition to the common ref:GenRefEntityField[entity
+field] settings: 
+
+ul[
+    item[e[operands] - Allows referencing one or more ref:GenRefDerivedField[derived fields].]
+]
+
+Calculated fields are not part of the model editor yet and will therefore be ignored by the generator.
+
+section4:GenRefBooleanField[Boolean field]
+
+Represents a field type for storing boolean values.
+
+A boolean field has no fields or references in addition to the common ref:GenRefEntityField[entity
+field] settings.
+
+The generator will treat boolean values as checkbox input elements in ref:GenRefEditAction[edit] pages.
+For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display] templates the e[yesno]
+modifier is used to show an image indicating the boolean value (green check or red cross).
+
+section4:GenRefAbstractIntegerField[Abstract integer field]
+
+Represents an abstract integer field for grouping different implementations of this field type.
+
+An abstract integer field has the following properties in addition to the common ref:GenRefEntityField[entity
+field] settings:
+
+ul[
+    item[e[length] - The length of this field. This controls whether the Doctrine mapping type will be
+    e[integer], e[bigint] or e[smallint]. Default value is 11.]
+    item[e[sortablePosition] - A boolean specifying whether this field stores the position for the sortable
+    extension or not. If set to e[true] this field will be used as default sorting criteria. There is
+    no built-in reordering possibility, for example with drag n drop, implemented yet (see link[https://github.com/Guite/MostGenerator/issues/29][#29]
+    for more information).]
+]
+
+section4:GenRefIntegerField[Integer field]
+
+Represents a field type for storing integer numbers.
+
+An integer field has the following properties in addition to the common ref:GenRefAbstractIntegerField[abstract
+integer field] settings:
+
+ul[
+    item[e[aggregateFor] - Aggregate field: one-to-many target alias and field name (syntax: e[views#amount])
+    which causes the generator creating special methods for aggregation.]
+    item[e[maxValue] - Maximal value. If set to a value other than 0 then a validator will enforce this
+    constraint on client and server side.]
+    item[e[minValue] - Minimal value. If set to a value other than 0 then a validator will enforce this
+    constraint on client and server side.]
+    item[a[GenRefIntegerFieldVersion]e[version] - A boolean specifying whether this field should act as a version. If set to e[true]
+    the owning entity will need to use ref:GenRefEntityLockType[optimistic locking]. There is no user
+    interface for version management generated yet.]
+]
+
+In ref:GenRefEditAction[edit] pages the generator will use int input elements as well as validation
+on client and server side. For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display]
+the value will just be shown.
+
+section4:GenRefDecimalField[Decimal field]
+
+Represents a field type for storing decimal numbers.
+
+A decimal field has the following properties in addition to the common ref:GenRefEntityField[entity field]
+settings:
+
+ul[
+    item[e[aggregationField] - A boolean specifying whether this field should act as an aggregate field.
+    If set to e[true] the generator creates special methods for aggregation.]
+    item[e[length] - The length of this field. Default value is 10.]
+    item[e[maxValue] - Maximal value. If set to a value other than 0 then a validator will enforce this
+    constraint on client and server side.]
+    item[e[minValue] - Minimal value. If set to a value other than 0 then a validator will enforce this
+    constraint on client and server side.]
+    item[e[scale] - The amount of digits after the dot. Default value is 2.]
+]
+
+In ref:GenRefEditAction[edit] pages the generator will use float input elements as well as validation
+on client and server side. For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display]
+the value will just be shown using the e[formatnumber] modifier.
+
+section4:GenRefFloatField[Float field]
+
+Represents a field type for storing float numbers.
+
+A float field has the following properties in addition to the common ref:GenRefEntityField[entity field]
+settings:
+
+ul[
+    item[e[aggregationField] - A boolean specifying whether this field should act as an aggregate field.
+    If set to e[true] the generator creates special methods for aggregation.]
+    item[e[length] - The length of this field. Default value is 10.]
+    item[e[maxValue] - Maximal value. If set to a value other than 0 then a validator will enforce this
+    constraint on client and server side.]
+    item[e[minValue] - Minimal value. If set to a value other than 0 then a validator will enforce this
+    constraint on client and server side.]
+]
+
+In ref:GenRefEditAction[edit] pages the generator will use float input elements as well as validation
+on client and server side. For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display]
+the value will just be shown using the e[formatnumber] modifier.
+
+section4:GenRefAbstractStringField[Abstract string field]
+
+Represents an abstract string field for grouping different implementations of this field type.
+
+An abstract string field has the following properties in addition to the common ref:GenRefEntityField[entity
+field] settings:
+
+ul[
+    item[e[fixed] - A boolean specifying whether this field has a fixed length or not.]
+    item[e[minLength] - Minimal length. If set to a value other than 0 then a validator will enforce this
+    constraint on client and server side.]
+    item[e[nospace] - A boolean specifying whether space chars are forbidden or not.]
+    item[e[regexp] - Regular expression to validate against.]
+]
+
+If one of these properties is set to e[true] a corresponding validator will check this constraint on
+client and server level.
+
+section4:GenRefStringField[String field]
+
+Represents a field type for storing string values.
+
+A string field has the following properties in addition to the common ref:GenRefAbstractStringField[abstract
+string field] settings:
+
+ul[
+    item[e[country] - A boolean specifying whether this field represents a country code or not. If set
+    to e[true] this still results in a normal text input element as there is link[http://code.zikula.org/core/ticket/2446][no
+    country selector available yet] in Zikula.]
+    item[e[htmlcolour] - A boolean specifying whether this field represents a html color code (like #003399)
+    or not. If set to e[true] a colour picker is used in ref:GenRefEditAction[edit] pages for convenient
+    selection of colour codes.]
+    item[e[language] - A boolean specifying whether this field represents a language code or not. If
+    set to e[true] a language selector is used in ref:GenRefEditAction[edit] pages. For the output in ref:GenRefViewAction[view]
+    and ref:GenRefDisplayAction[display] templates the e[getlanguagename] modifier is used to display
+    the full name instead of the unreadable language code.]
+    item[e[length] - The length of this field. Default value is 10000.]
+    item[e[password] - A boolean specifying whether this field represents a password or not. If set to
+    e[true] a password input element will be used instead of a normal one in ref:GenRefEditAction[edit] pages.]
+]
+
+In ref:GenRefEditAction[edit] pages the generator will use singleline input elements for string fields
+- except you defined something else (like language or password). Other validations are added together
+and applied as well.
+
+section4:GenRefTextField[Text field]
+
+Represents a field type for storing larger text.
+
+A text field has the following properties in addition to the common ref:GenRefAbstractStringField[abstract
+string field] settings:
+
+ul[
+    item[e[length] - The length of this field. Default value is 10000.]
+]
+
+In ref:GenRefEditAction[edit] pages the generator will use multiline input elements (textarea).
+
+section4:GenRefUserField[User field]
+
+Extension of ref:GenRefAbstractIntegerField[abstract integer field] for storing user ids.
+
+An user field has no fields or references in addition to the common ref:GenRefAbstractIntegerField[abstract
+integer field] settings.
+
+In ref:GenRefEditAction[edit] pages the generator will implement an auto completion element allowing
+searching users by their name. For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display]
+templates the user name is shown and linked to the corresponding user profile in case a profile module
+has been set in the Settings module administration.
+
+(Note: The implementation of the auto completion should be replaced by a central forms plugin, see link[http://code.zikula.org/core/ticket/2444][this
+ticket] for more information.)
+
+section4:GenRefEmailField[Email field]
+
+Represents a field type for storing email addresses.
+
+An email field has the following properties in addition to the common ref:GenRefAbstractStringField[abstract
+string field] settings:
+
+ul[
+    item[e[length] - The length of this field. Default value is 255.]
+]
+
+In ref:GenRefEditAction[edit] pages the generator will use email input elements as well as validation
+on client and server side. For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display]
+an icon will be shown linking the email address.
+
+section4:GenRefUrlField[Url field]
+
+Represents a field type for storing urls.
+
+An url field has the following properties in addition to the common ref:GenRefAbstractStringField[abstract
+string field] settings:
+
+ul[
+    item[e[length] - The length of this field. Default value is 255.]
+]
+
+In ref:GenRefEditAction[edit] pages the generator will use url input elements as well as validation
+on client and server side. For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display]
+an icon will be shown linking the url.
+
+section4:GenRefUploadField[Upload field]
+
+Represents a field type for storing upload files.
+
+An upload field has the following properties in addition to the common ref:GenRefAbstractStringField[abstract
+string field] settings:
+
+ul[
+    item[e[allowedExtensions] - List of file extensions to be accepted during the upload, separated by a comma with a space char.
+    Default value is e[gif, jpeg, jpg, png].]
+    item[e[length] - The length of this field. Default value is 255.]
+    item[e[namingScheme] - Defines how uploaded files ref:GenRefUploadNamingScheme[are named].]
+    item[e[subFolderName] - Name of sub folder for storing uploaded files. If this is empty the field name will be used as folder name.]
+]
+
+In ref:GenRefEditAction[edit] pages the generator will use upload input elements. If a field is mandatory
+the upload will be required when creating a new entity, but not when editing an existing one. If a field
+is optional (not mandatory) then it will be possible to delete existing uploads on editing.
+
+For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display]
+a download link is shown together with the filesize. If the file is an image then a small version of
+it is shown instead of a text link (on edit pages too by the way).
+
+If an application has any upload fields the generator creates a e[recommended] dependency to the e[Thumbnails]
+extension. If this module is installed then the generated application uses it to create and store thumbnails
+on demand. There is a view modifier available which understands many parameters to use arbitrary images
+in the templates.
+
+For every upload field e[foo] there will be another ref:GenRefArrayField[array field] created which is named
+e[fooMeta]. This field stores some meta information about the uploaded files for convenience, like the file
+size, the image format (portrait, landscape, square) and the image dimensions.
+
+section4:GenRefUploadNamingScheme[Upload naming scheme]
+
+Represents different schemes for naming uploaded files.
+
+Can be one of the following options:
+
+ul[
+    item[e[ORIGINALWITHCOUNTER] - Keep the original file name. Add a counter if required to avoid duplicated file names.]
+    item[e[RANDOMCHECKSUM] - Use a random checksum. This results in quite cryptic filenames.]
+    item[e[FIELDNAMEWITHCOUNTER] - Use the field name as a prefix together with a counter. For example
+    e[image1], e[image2], and so on.]
+]
+
+Within the generated e[upload handler] class one of those strategies will be selected depending on from
+which entity the currently treated upload file.
+
+section4:GenRefArrayField[Array field]
+
+Represents a field type for storing arrays.
+
+An array field has no fields or references in addition to the common ref:GenRefEntityField[entity
+field] settings.
+
+The generator will exclude arrays in ref:GenRefEditAction[edit] pages as well as for the output in ref:GenRefViewAction[view]
+and ref:GenRefDisplayAction[display] templates.
+
+section4:GenRefObjectField[Object field]
+
+Represents a field type for storing objects.
+
+An object field has no fields or references in addition to the common ref:GenRefEntityField[entity
+field] settings.
+
+The generator will exclude objects in ref:GenRefEditAction[edit] pages as well as for the output in ref:GenRefViewAction[view]
+and ref:GenRefDisplayAction[display] templates.
+
+section4:GenRefAbstractDateField[Abstract date field]
+
+Represents an abstract date dependant field for grouping those field types.
+
+An abstract date field has the following properties in addition to the common ref:GenRefEntityField[entity
+field] settings:
+
+ul[
+    item[e[future] - A boolean specifying whether the value must be in the future or not.]
+    item[e[past] - A boolean specifying whether the value must be in the past or not.]
+    item[e[timestampable] - Which ref:GenRefEntityTimestampableType[timestampable type] is used.]
+    item[e[timestampableChangeTriggerField] - Optional name of field to use as change trigger (if type
+    is e[CHANGE].]
+    item[e[timestampableChangeTriggerValue] - Optional value of field to use as change trigger (if type
+    is e[CHANGE].]
+]
+
+The e[past] and e[future] properties are implemented as client-side and server-side validators. 
+
+The generator transforms the timestampable attributes to the corresponding implementation as is. There
+are no differences made between the different timestampable types.
+
+section4:GenRefDatetimeField[Datetime field]
+
+Represents a field type for storing datetime values with the format e[YYYY-MM-DD H:i:s].
+
+A datetime field has the following properties in addition to the common ref:GenRefAbstractDateField[abstract
+date field] settings:
+
+ul[
+    item[e[version] - A boolean specifying whether this field should act as a version. If set to e[true]
+    the owning entity will need to use ref:GenRefEntityLockType[optimistic locking]. Please read more
+    at the ref:GenRefIntegerFieldVersion[integer field] section. Also please note that it is preferred
+    to use integer fields instead of datetime fields for version storage (read more in the ref:ValidationIntegerForVersion[validation
+    chapter]).]
+]
+
+The generator will treat datetime values as date input elements with the e[includeTime] attribute set
+to true in ref:GenRefEditAction[edit] pages. For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display]
+templates the e[datetime] modifier is used to format the datetime according to the current locale.
+
+section4:GenRefDateField[Date field]
+
+Represents a field type for storing date values with the format e[YYYY-MM-DD].
+
+A date field has no fields or references in addition to the common ref:GenRefAbstractDateField[abstract
+date field] settings.
+
+The generator will treat date values as date input elements with the e[includeTime] attribute set
+to false in ref:GenRefEditAction[edit] pages. For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display]
+templates the e[datetime] modifier is used to format the date according to the current locale.
+
+section4:GenRefTimeField[Time field]
+
+Represents a field type for storing time values with the format e[H:i:s].
+
+A time field has no fields or references in addition to the common ref:GenRefAbstractDateField[abstract
+date field] settings.
+
+The generator will treat time values as text input elements with a maximum length in ref:GenRefEditAction[edit]
+pages as long as there is link[http://code.zikula.org/core/ticket/2445][no time field available] in Zikula).
+For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display] templates the e[datetime]
+modifier is used to format the time according to the current locale.
+
+section4:GenRefEntityIdentifierStrategy[Entity identifier strategy]
+
+Represents different strategies for identifier generation.
+
+Can be one of the following options:
+
+ul[
+    item[NONE - No explicite strategy.]
+    item[AUTO - Choose automatically.]
+    item[SEQUENCE - Uses a database sequence.]
+    item[TABLE - Uses a single-row database table and a hi/lo algorithm.]
+    item[IDENTITY - Obtains IDs from special identity columns (auto_increment).]
+]
+
+The generator transforms these values to the corresponding implementation as is. There are no differences
+made between the different index types. So beside the actual entity class there won't be any code parts
+affected based on which identifier strategy you use.
+
+section4:GenRefEntityChangeTrackingPolicy[Entity change tracking policy]
+
+Represents different policies defining how changes are determined.
+
+Can be one of the following options:
+
+ul[
+    item[e[DEFERRED_IMPLICIT] - Compare properties during commit. Convenient, but not good for performance.]
+    item[e[DEFERRED_EXPLICIT] - Scan only entities marked for change detection. Better performance, but no dirty checking.]
+    item[e[NOTIFY] - Assume that entities inform listeners about their changes.]
+]
+
+The generator transforms these values to the corresponding implementation as is. For e[notify] the generator
+creates according notification calls within the entity setter methods.
+
+section4:GenRefEntityLockType[Entity lock type]
+
+Represents different locking strategies for entities.
+
+Can be one of the following options:
+
+ul[
+    item[NONE - No locking support.]
+    item[OPTIMISTIC - Optimistic locking.]
+    item[PESSIMISTIC_READ - Pessimistic read locking.]
+    item[PESSIMISTIC_WRITE - Pessimistic write locking.]
+    item[PAGELOCK - Use PageLock module.]
+    item[PAGELOCK_OPTIMISTIC - Use PageLock module combined with optimistic locking.]
+    item[PAGELOCK_PESSIMISTIC_READ - Use PageLock module combined with pessimistic read locking.]
+    item[PAGELOCK_PESSIMISTIC_WRITE - Use PageLock module combined with pessimistic write locking.]
+]
+
+The generator transforms these values to the corresponding implementation as is. If you use optimistic
+locking the entity needs a version field which can be an ref:GenRefIntegerField[integer] or ref:GenRefDatetimeField[datetime]
+field whereby an integer is preferred.
+
+If you choose an option including the PageLock module the form handlers generated for the ref:GenRefEditAction[edit]
+pages will call some api functions of the PageLock extension in order to incorporate these features.
+
+section4:GenRefEntityTreeType[Entity tree type]
+
+Represents different tree strategies for entities.
+
+Can be one of the following options:
+
+ul[
+    item[NONE - No tree.]
+    item[NESTED - Nested set.]
+    item[CLOSURE - Closure.]
+]
+
+If an entity has a tree type other than e[NONE] then the generator creates several additional artifacts,
+like for example:
+ul[
+    item[An additional template for managing the tree in a hierarchy view.]
+    item[An additional view plugin for including the Zikula tree javascript.]
+    item[Some ajax functions used by the hierarchy view.]
+    item[For closure: separate classes for the closure entities.]
+]
+
+section4:GenRefEntitySlugStyle[Entity slug style]
+
+Represents different slug styles for the creation of permalinks.
+
+Can be one of the following options:
+
+ul[
+    item[LOWERCASE - Lowercase.]
+    item[CAMEL - Camelcase.]
+]
+
+The generator transforms these values to the corresponding implementation as is. There are no differences
+made between the different slug styles. So beside the actual entity class there won't be any code parts
+affected based on which slug style you use.
+
+section4:GenRefEntityTimestampableType[Entity timestampable type]
+
+Represents different events for triggering the Timestampable extension.
+
+Can be one of the following options:
+
+ul[
+    item[NONE - No Timestampable behaviour.]
+    item[UPDATE - On update.]
+    item[CREATE - On create.]
+    item[CHANGE - On property change.]
+]
+
+The generator transforms these values to the corresponding implementation as is. There are no differences
+made between the different timestampable types. So beside the actual entity class there won't be any
+code parts affected based on which timestampable type you use.
+
+section4:GenRefEntityIndex[Entity index]
+
+Represents an entity index.
+
+It includes the following properties:
+
+ul[
+    item[e[type] - The index type.]
+]
+
+An index may have the following references:
+
+ul[
+    item[e[entity] - Reference to the owning element.]
+    item[e[items] - Allows referencing one or more ref:GenRefEntityIndexItem[index items].]
+]
+
+section4:GenRefEntityIndexType[Entity index type]
+
+Represents different types of ref:GenRefEntityIndex[entity indexes].
+
+Can be one of the following options:
+
+ul[
+    item[NORMAL - Normal index.]
+    item[UNIQUE - Unique constraint.]
+]
+
+The generator transforms these values to the corresponding implementation as is. There are no differences
+made between the different index types. So beside the actual entity class there won't be any code parts
+affected based on which index type you use.
+
+section4:GenRefEntityIndexItem[Entity index item]
+
+Represents a part of an ref:GenRefEntityIndex[index], referencing to an equally-named ref:GenRefEntityField[entity
+field].
+
+An index item may have the following references:
+
+ul[
+    item[e[index] - Reference to the owning element.]
+]
+
+section4:GenRefRelationship[Relationship]
+
+Base class for all types of associations between entities.
+
+It includes the following properties:
+
+ul[
+    item[e[bidirectional] - A boolean specifying whether this relationship is bidirectional or not. The
+    default value is e[false] for performance reasons.]
+]
+
+A relationship may have the following references:
+
+ul[
+    item[e[container] - Reference to the owning element.]
+    item[e[source] - Allows referencing a ref:GenRefEntity[target entity].]
+    item[e[target] - Allows referencing a ref:GenRefEntity[source entity].]
+]
+
+section4:GenRefJoinRelationship[Join relationship]
+
+Collects all foreign key and join relationships.
+
+It includes the following properties in addition to the common ref:GenRefRelationship[relationship] settings:
+
+ul[
+    item[e[cascade] - The ref:GenRefCascadeType[cascade type] used on application level.]
+    item[e[editType] - The ref:GenRefRelationEditType[edit type] for this association.]
+    item[e[fetchType] - The ref:GenRefRelationFetchType[fetch type] for this association.]
+    item[e[nullable] - A boolean specifying whether the field for this relationship may be null or not.
+    The default value is e[true].]
+    item[e[onDelete] - String for optional update cascade options on database level (for example e[RESTRICT]
+    or e[SETNULL]).]
+    item[e[onDelete] - String for optional delete cascade options on database level (for example e[RESTRICT]
+    or e[SETNULL]).]
+    item[e[sourceAlias] - The alias for the source entity, required to have multiple associations between
+    the same entities. The name should reflect the cardinality on the source side (singular or plural
+    forms) depending on the relationship type. As with all names camel case is preferred, for example
+    e[personAddresses].]
+    item[e[sourceField] - Name of the source entity fields used for the join. The default value is e[id]
+    which means that the source entity is joined by it's primary key. It is possible to change that value
+    for custom join conditions. Furthermore it is possible to use multiple field names separated by a
+    comma with a space in order to join entities with composite keys.]
+    item[e[targetAlias] - The alias for the target entity, required to have multiple associations between
+    the same entities. The name should reflect the cardinality on the target side (singular or plural
+    forms) depending on the relationship type. As with all names camel case is preferred, for example
+    e[personAddresses].]
+    item[e[targetField] - Name of the target entity fields used for the join. The default value is e[id]
+    which means that the target entity is joined by it's primary key. It is possible to change that value
+    for custom join conditions. Furthermore it is possible to use multiple field names separated by a
+    comma with a space in order to join entities with composite keys.]
+    item[e[unique] - A boolean specifying whether the field for this relationship is unique or not. The
+    default value is e[false].]
+]
+
+The generator transforms most of these settings to the corresponding implementation as is. The only thing
+which is used outside of the entity classes is the ref:GenRefRelationEditType[edit type] which controls
+how relationships are handled in ref:GenRefEditAction[edit actions].
+
+Join relationships are automatically incorporated into the dql queries which are placed in the entity
+repository classes. You can override these methods for changing selection details if required.
+
+section4:GenRefOneToOneRelationship[One to one relationship]
+
+Represents one-to-one relationships.
+
+It includes the following properties in addition to the common ref:GenRefJoinRelationship[join relationship]
+settings:
+
+ul[
+    item[e[orphanRemoval] - Default value is e[false]. If set to e[true] orphans get removed automatically.]
+    item[e[primaryKey] - A boolean specifying whether the foreign key of this relation should act as
+    a primary key. The default value is e[false]. Please note that this has not been tested yet and probably
+    won't be supported properly yet by the controller layers in the generated application.]
+]
+
+section4:GenRefOneToManyRelationship[One to many relationship]
+
+Represents one-to-many relationships.
+
+It includes the following properties in addition to the common ref:GenRefJoinRelationship[join relationship]
+settings:
+
+ul[
+    item[e[indexBy] - Set to target field name (must be unique) to specify the index by criteria for the
+    relation. Please note that this has not be tested very well yet.]
+    item[e[orderBy] - Set to target field name to specify the sorting criteria for the relation.]
+    item[e[orphanRemoval] - Default value is e[false]. If set to e[true] orphans get removed automatically.]
+]
+
+section4:GenRefManyToOneRelationship[Many to one relationship]
+
+Represents many-to-one relationships.
+
+It includes the following properties in addition to the common ref:GenRefJoinRelationship[join relationship]
+settings:
+
+ul[
+    item[e[primaryKey] - A boolean specifying whether the foreign key of this relation should act as
+    a primary key. The default value is e[false]. Please note that this has not been tested yet and probably
+    won't be supported properly yet by the controller layers in the generated application.]
+]
+
+section4:GenRefManyToManyRelationship[Many to many relationship]
+
+Represents many-to-many relationships.
+
+It includes the following properties in addition to the common ref:GenRefJoinRelationship[join relationship]
+settings:
+
+ul[
+    item[e[indexBy] - Set to target field name (must be unique) to specify the index by criteria for the
+    relation. Please note that this has not be tested very well yet.]
+    item[e[orderBy] - Set to target field name to specify the sorting criteria for the relation.]
+    item[e[refClass] - Specifies the reference class created for the linking table (for example e[personAddress]).
+    The generator creates additional classes for this reference-managing entity.]
+]
+
+section4:GenRefCascadeType[Cascade type]
+
+Represents different cascade types on application level.
+
+Can be one of the following options:
+
+ul[
+    item[NONE]
+    item[PERSIST]
+    item[REMOVE]
+    item[MERGE]
+    item[DETACH]
+    item[PERSIST_REMOVE]
+    item[PERSIST_MERGE]
+    item[PERSIST_DETACH]
+    item[REMOVE_MERGE]
+    item[REMOVE_DETACH]
+    item[MERGE_DETACH]
+    item[PERSIST_REMOVE_MERGE]
+    item[PERSIST_REMOVE_DETACH]
+    item[PERSIST_MERGE_DETACH]
+    item[ALL]
+]
+
+The cascade type is implemented as defined in the association's annotation within the corresponding entity
+classes. At the moment there are no other code parts depending on that.
+
+section4:GenRefRelationFetchType[Relation fetch type]
+
+Represents different fetch types for join relationships.
+
+Can be one of the following options:
+
+ul[
+    item[LAZY - Lazy.]
+    item[EAGER - Eager.]
+    item[EXTRA_LAZY - Extra lazy.]
+]
+
+The generator transforms these values to the corresponding implementation. There are no differences made
+yet between the different fetch types as the generator uses DQL for almost all selections. So beside
+the actual entity class there won't be any code parts affected based on which fetch type you use.
+
+section4:GenRefRelationEditType[Relation edit type]
+
+Represents different edit types for join relationships.
+
+Can be one of the following options:
+
+ul[
+    item[ACTIVE_NONE_PASSIVE_CHOOSE - Editing the parent does nothing. Editing the child includes choosing the parent.]
+    item[ACTIVE_NONE_PASSIVE_EDIT - Editing the parent does nothing. Editing the child includes choosing, adding and editing the parent.]
+    item[ACTIVE_CHOOSE_PASSIVE_NONE - Only for many-to-many: Editing the parent includes choosing the children. Editing the child does nothing.]
+    item[ACTIVE_EDIT_PASSIVE_CHOOSE - Editing the parent includes choosing, adding and editing the children. Editing the child includes choosing the parent.]
+    item[ACTIVE_EDIT_PASSIVE_EDIT - Editing the parent includes choosing, adding and editing the children. Editing the child includes choosing, adding and editing the parent.]
+    item[ACTIVE_EDIT_PASSIVE_NONE - Only for many-to-many: Editing the parent includes choosing, adding and editing the children. Editing the child does nothing.]
+]
+
+Actually these settings are part of the ref:GeneratorViewLayer[view layer] and actually they are going
+to be moved somewhen in future. But this is a case where we decided that we don't want to wait until
+the view layer is ready to be used (as priorities require to do other things first).
+
+For each entity the generator creates some templates to be included in the edit templates of related
+entities (for example a display list and another one for edit). Depending on which edit type is defined
+for a relationship the corresponding edit template (choose or edit) is included or not.
+
+ul[
+    item[NONE means that there is no possibility to take influence on the association.]
+    item[CHOOSE means that it is possible to select a related entity with the help of auto completion.]
+    item[EDIT means the same as CHOOSE plus that it is also possible to created and edit related entities during
+    editing the main entity.]
+]
+
+section4:GenRefInheritanceRelationship[Inheritance relationship]
+
+Represents inheritance relationships for describing entity class hierarchies.
+
+It includes the following properties in addition to the common ref:GenRefRelationship[relationship] settings:
+
+ul[
+    item[e[discriminatorColumn] - Name of the field used for storing the entity type.]
+    item[e[strategy] - The inheritance strategy used for data storage.]
+]
+
+a[GenRefEntityInheritanceStructure]
+The generator considers inheritance for all classes which are created for each entity. This includes
+naturally the entity classes itself, but also additional classes like repositories, validators or additional
+entities for extensions like attributes, categories, log entries, translations and more.
+
+As explained in the ref:GenRefEntityClassStructure[entity section] all generated concrete classes inherit
+from corresponding abstract base classes. As soon as an entity does inherit from another one, there will
+be no base class created for it. Instead the concrete implementation class will inherit from the concrete
+class of the parent entity.
+
+Example:
+
+code[PHP][
+    class MyModule_Entity_Validator_Base_Person
+        extends MyModule_Validator
+    {
+        // generator code
+    }
+
+    class MyModule_Entity_Validator_Person
+        extends MyModule_Entity_Validator_Base_Person
+    {
+        // manual code
+    }
+
+    class MyModule_Entity_Validator_Customer
+        extends MyModule_Entity_Validator_Person
+    {
+        // manual code
+    }
+]
+
+While this implementation approach is quite elegant it is not completed yet in all areas unfortunately.
+At least during installation everything should be fine. When working with the application you will notice
+that inherited fields are handled well, but additional fields from the child classes are not considered
+yet.
+
+section4:GenRefInheritanceStrategyType[Inheritance strategy type]
+
+The strategy type defines which kind of inheritance strategy should be used.
+
+Can be one of the following options:
+
+ul[
+    item[SINGLE_TABLE - Simple inheritance: share everything and store it in the parent table.]
+    item[JOINED - Concrete inheritance: each entity stores everything in its own table.]
+]
+
+The generator transforms these values to the corresponding implementation. There are no differences made
+yet between the different strategies. So beside the actual entity class there won't be any code parts
+affected based on which strategy you use.
+
+section4:GenRefVariables[Variables]
+
+Container class for carrying module vars.
+
+It includes the following properties:
+
+ul[
+    item[e[sortOrder] - The sorting position for when using multiple variable sections.]
+]
+
+A var container may have the following references:
+
+ul[
+    item[e[container] - Reference to the owning element.]
+    item[e[vars] - Allows referencing one or more ref:GenRefVariables[variables].]
+]
+
+As soon as at least one variable container exists the generator creates a e[config] page in the admin
+area to let the site admin manage corresponding settings.
+
+If a model contains multiple variable containers the config page will use a tabbed panel containing a
+tab for each container, sorted by the sortOrder field. This allows separating settings in bigger models
+into logical semantic groups.
+
+section4:GenRefVariable[Variable]
+
+Represents a module variable.
+
+It includes the following properties:
+
+ul[
+    item[e[name] - Name of the variable.]
+    item[e[value] - Default value of the variable.]
+]
+
+A variable may have the following references:
+
+ul[
+    item[e[container] - Reference to the owning element.]
+]
+
+For each variable the generator creates an according input element in the config page. Also the variable
+is handled properly in the installer classes which takes care for initialisation and removal on uninstallation.
+
+If you enabled interactive installation there will also be an init page asking for the initial values
+for all variables. However this is not matured very well yet.
+
+section4:GenRefTextVar[Text var]
+
+Represents a setting with alphanumeric values.
+
+It includes the following properties in addition to the common ref:GenRefVariable[variable] settings:
+
+ul[
+    item[e[maxLength] - The maximum length.]
+]
+
+The generator creates an input for text for a text variable. The maximum length is not considered anywhere
+in the generated code yet.
+
+section4:GenRefIntVar[Int var]
+
+Represents a setting with numeric (integer) values.
+
+The generator creates an input element for integers (digits) for an integer variable.
+
+section4:GenRefBoolVar[Bool var]
+
+Represents a setting with boolean values.
+
+The generator creates a checkbox input element for a boolean variable.
+
+section4:GenRefFilePathVar[File path var]
+
+Represents a setting with file path values.
+
+It includes the following properties in addition to the common ref:GenRefVariable[variable] settings:
+
+ul[
+    item[e[withinDocRoot] - A boolean specifying whether this path is placed inside the web root or not.
+    The default value is e[true].]
+    item[e[writable] - A boolean specifying whether this file path is writable or not. The default value
+    is false.]
+]
+
+The generator will create a text input element for a file path variable as well as additional behaviour
+to consider it's fields properly. At the moment this has not been done yet though, so file path vars
+are currently handled in the same way like text vars.
+
+section4:GenRefListVar[List var]
+
+Represents a setting with list values.
+
+It includes the following properties in addition to the common ref:GenRefVariable[variable] settings:
+
+ul[
+    item[e[multiple] - A boolean specifying whether multiple items can be selected concurrently or not.
+    The default value is e[false].]
+]
+
+A list variable may have the following references:
+
+ul[
+    item[e[items] - Allows referencing one or more ref:GenRefListVarItem[items].]
+]
+
+The generator will create a select element for a list variable. At the moment this has not been done
+yet though, so list vars are currently handled in the same way like text vars.
+
+section4:GenRefListVarItem[List var item]
+
+Represents an entry for a setting with list values.
+
+It includes the following properties:
+
+ul[
+    item[e[default] - A boolean specifying whether this entry is selected by default or not. The default
+    value is false.]
+    item[e[name] - Name of the item.]
+]
+
+The generator will create an option element for the corresponding select element. At the moment this
+has not been done yet though, so list vars are currently handled in the same way like text vars.
+
+section4:GenRefEntityEventListener[Entity event listener]
+
+Base class for model elements representing entity event listeners.
+
+List of supported events:
+
+ul[
+    item[PrePersist / PostPersist]
+    item[PreUpdate / PostUpdate]
+    item[PreRemove / PostRemove]
+    item[PostLoad]
+]
+
+An event listener may have the following references:
+
+ul[
+    item[e[operations] - Allows referencing one or more ref:GenRefTransformObject[transform objects].]
+]
+
+Event listeners are not part of the model editor yet and are therefore ignored by the generator at
+the moment. Instead the generator creates simply all listener methods for all entities.
+
+section4:GenRefTransformObject[Transform object]
+
+Base class for transformation objects encapsulating algorithm puzzle pieces.
+
+Examples:
+
+ul[
+    item[Arithmetic operations]
+    item[Datetime operations]
+    item[Financial operations]
+    item[Logical operations]
+    item[String operations, e.g. replacements]
+    item[System calls]
+]
+
+A transform object may have the following references:
+
+ul[
+    item[e[container] - Reference to the owning element.]
+]
+
+Transform objects are not part of the model editor yet and are therefore ignored by the generator at
+the moment.
+
+section3:GeneratorModelCombinations[Combinations and edge cases]
+
+This section is going to collect certain combinations of elements in practical scenarios. The intention
+of this section is to point out dependencies and other essential aspects relating the combination of
+model elements in various ways.
+
+
+section2:GeneratorControllerLayer[Controller layer]
+
+section3:GeneratorControllerElements[Language elements]
+
+section4:GenRefController[Controller]
+
+A controller represents an area with functions which are called ref:GenRefAction[actions]. In Zikula
+a controller is identified with the e[type] parameter.
+
+The following controller types are available:
+
+ul[
+    item[Admin controller - for admin areas.]
+    item[User controller - for user areas.]
+    item[Account controller - for account sections.]
+    item[Ajax controller - for ajax functions.]
+    item[Search controller - for a search-related controller and search api.]
+    item[Custom controller - for custom areas, like e[edit].]
+]
+
+A controller may have the following references:
+
+ul[
+    item[e[actions] - Allows referencing one or more ref:GenRefAction[actions].]
+    item[e[container] - Reference to the owning element.]
+    item[e[handlers] - Allows referencing one or more ref:GenRefActionHandler[action handlers].]
+]
+
+The generator creates controller classes with methods for each actions. Action handlers are not considered
+yet. Also special functionalities for account and search controllers are not implemented yet.
+
+If you have added some ref:GenRefVariables[variables] the admin controller will contain a e[config] method
+for managing the modvar settings.
+
+section4:GenRefAction[Action]
+
+An action represents a controller function which can be called by the user. In Zikula an action is identified
+with the e[func] parameter.
+
+The following action types are available:
+
+ul[
+    item[Main action - default function.]
+    item[View action - processes a collection of entities.]
+    item[Display action - shows a certain entity in detail.]
+    item[Edit action - an action for editing an entity.]
+    item[Delete action - an action for deleting an entity.]
+    item[Custom action - for custom actions, like e[mySpecialFunction].]
+]
+
+An action may have the following references:
+
+ul[
+    item[e[controller] - Reference to the owning element.]
+    item[e[handler] - Allows referencing an ref:GenRefActionHandler[action handler].]
+    item[e[incoming] - Allows referencing one or more ref:GenRefTransition[transitions].]
+    item[e[outgoing] - Allows referencing one or more ref:GenRefTransition[transitions].]
+]
+
+The generator creates sensitive default implementations for all action types except custom actions which
+are not treated very well yet.
+
+It is possible to create special versions for all templates by adding a suffix which will be assigned
+by the e[tpl] parameter. For example you can call e[display_myversion.tpl] by adding e[&tpl=myversion]
+to the url.
+
+section4:GenRefMainAction[Main action]
+
+A main action implementation does either do a simple redirect to the view function or (if no view is
+available) fetch a simple template file.
+
+section4:GenRefViewAction[View action]
+
+The view implementation offers a generic list view of multiple items which can be sorted and filtered.
+Also there are alternative template formats created for rss, atom, xml and csv support. Just add e[&userssext=1]
+to the url or, even easier with shorturls, change e[persons.html] to e[persons.rss].
+
+section4:GenRefDisplayAction[Display action]
+
+A display action results in a generic detail view of an entity. Again there are alternative formats supported,
+like for example xml.
+
+section4:GenRefEditAction[Edit action]
+
+The edit implementation creates form pages for changing entities and their relations. Beside the form
+handler classes this involves according template files.
+
+section4:GenRefDeleteAction[Delete action]
+
+For a delete action the generator creates the well-known confirmation page asking the user whether he
+really wants to delete the given entity.
+
+section4:GenRefCustomAction[Custom action]
+
+A custom action is only created as a mockup which contains the permission check as well as some other
+stuff which is always required. It is not complete yet, as for example a template file is missing.
+
+section4:GenRefActionHandler[Action handler]
+
+Action handlers encapsulate the reaction on user interactions. The most common instance is a form handler
+processing and validating some input fields.
+
+The following handler types are available:
+
+ul[
+    item[List handler - reacts on interactions with a ref:GenRefViewAction[view action] (e.g. for filtering and sorting).]
+    item[Detail handler - reacts on interactions with a ref:GenRefDisplayAction[display action].]
+    item[Edit handler - reacts on interactions with an ref:GenRefEditAction[edit action].]
+    item[Custom handler - reacts on interactions with a ref:GenRefCustomAction[custom action].]
+]
+
+A handler may have the following references:
+
+ul[
+    item[e[events] - Allows referencing one or more ref:GenRefActionEvent[events].]
+    item[e[action] - Reference to the owning element.]
+    item[e[container] - Reference to the owning element.]
+    item[e[controller] - Allows referencing a ref:GenRefController[controller].]
+]
+
+Not used yet by the generator at all.
+
+section4:GenRefActionEvent[Action event]
+
+An action event represents something which can happen within the scope of an action handler. For example
+this could be the press of a button.
+
+The following event types are available:
+
+ul[
+    item[Start / initial event.]
+    item[Normal event.]
+    item[End / final event.]
+]
+
+An event may have the following references:
+
+ul[
+    item[e[handler] - Reference to the owning element.]
+]
+
+Not used yet by the generator at all.
+
+section4:GenRefTransition[Transition]
+
+Transitions define how the user may move between the available use cases defined by the ref:GenRefAction[controller
+actions.]
+
+The following transition types are available:
+
+ul[
+    item[Redirect - automatic.]
+    item[User transition - manual.]
+]
+
+It includes the following properties:
+
+ul[
+    item[e[condition] - A conditional expression which must be or become true to activate the transition.]
+]
+
+A transition may have the following references:
+
+ul[
+    item[e[container] - Reference to the owning element.]
+    item[e[source] - Reference to source action.]
+    item[e[sourceEvent] - Reference to the source action's event causing this transition.]
+    item[e[target] - Reference to target action.]
+]
+
+Not used yet by the generator at all.
+
+section3:GeneratorControllerCombinations[Combinations and edge cases]
+
+At the moment the controller editor is almost limited to the creation of controller and action elements.
+As stated above action handlers and action events are not really used yet. Therefore there the variation
+in this layer is not that huge yet, so there are no special aspects to explain here.
+
+
+section2:GeneratorViewLayer[View layer]
+
+As there is no view editor available yet all the following elements are not relevant for the generator
+yet. Instead it only creates default templates foreach existing ref:GenRefAction[controller action] and
+ref:GenRefEntity[entity], as well as some common templates which are included or required for some extensions.
+There are no templates generated though for ref:GenRefCustomAction[custom actions] as this has not been
+implemented yet.
+
+section3:GeneratorViewElements[Language elements]
+
+section4:GenRefView[View]
+
+The base view class. Each view instance would correspond to a template in the generated Zikula application.
+
+The following view types are available:
+
+ul[
+    item[List view.]
+    item[Detail view.]
+    item[Edit view.]
+    item[Custom view.]
+]
+
+A view may have the following references:
+
+ul[
+    item[e[viewContainer] - Reference to the owning element.]
+    item[e[viewRoot] - Reference to root panel.]
+]
+
+section4:GenRefPresentationTable[Tables]
+
+The following table types are available:
+
+ul[
+    item[Layout table (is a ref:GenRefCompositeContainer[composite container]).]
+    item[Data table (is a ref:GenRefSubContainer[sub container]).]
+]
+
+section4:GenRefContainer[Container]
+
+Represents a very generic container.
+
+A container may have the following references:
+
+ul[
+    item[e[cancelActvators] - Allows referencing one or more ref:GenRefCancelActivator[cancel activators].]
+    item[e[submitActivators] - Allows referencing one or more ref:GenRefSubmitActivator[submit activators].]
+]
+
+section4:GenRefRootPanel[Root panel]
+
+Top-level container for a certain view.
+
+A root panel may have the following references in addition to the generic container fields:
+
+ul[
+    item[e[containers] - Allows referencing one or more ref:GenRefCompositeContainer[composite containers].]
+    item[e[presenter] - Reference to the owning element.]
+]
+
+section4:GenRefCompositeContainer[Composite container]
+
+A composite container which may include other sub containers.
+
+A composite container may have the following references in addition to the generic container fields:
+
+ul[
+    item[e[childContainer] - Allows referencing one or more ref:GenRefSubContainer[sub containers].]
+    item[e[rootPanel] - Reference to the owning element.]
+]
+
+section4:GenRefTabbedPane[Tabbed pane]
+
+A composite container which groups its sub containers with tabs.
+
+section4:GenRefSubContainer[Sub container]
+
+A sub container which may not include other sub containers.
+
+A sub container may have the following references in addition to the generic container fields:
+
+ul[
+    item[e[fields] - Allows referencing one or more ref:GenRefField[fields].]
+    item[e[parentContainer] - Reference to the owning element.]
+]
+
+section4:GenRefPanel[Panel]
+
+Inherits from both ref:GenRefCompositeContainer[composite container] and ref:GenRefSubContainer[sub container].
+
+section4:GenRefSearchPanel[Search panel]
+
+A dedicated panel for search functions.
+
+A search panel may have the following references in addition to the sub container fields:
+
+ul[
+    item[e[searchButton] - Allows referencing a ref:GenRefSubmitButton[submit button].]
+]
+
+section4:GenRefForm[Form]
+
+Extension of ref:GenRefSubContainer[sub container] for form elements.
+
+section4:GenRefField[Field]
+
+Represents a field with information.
+
+It includes the following properties:
+
+ul[
+    item[e[cssClass] - Optional specification of arbitrary css classes.]
+    item[e[defaultValue] - The default value (which may be different from that in the data layer).]
+]
+
+A field may have the following references:
+
+ul[
+    item[e[fieldContainer] - Reference to the owning element.]
+]
+
+section4:GenRefDisplayField[Display field]
+
+Shows the value of a certain field from the data layer.
+
+section4:GenRefInputField[Input field]
+
+Shows an input for a certain field from the data layer.
+
+It includes the following properties in addition to the common ref:GenRefField[field] settings:
+
+ul[
+    item[e[hasInitialFocus] - Whether this input should receive the initial focus or not.]
+    item[e[id] - Defines the markup element id.]
+    item[e[isReadOnly] - Whether this input is read only or not. e[Must be revalidated later to see if
+    this is really required.]]
+    item[e[isMandatory] - Whether this input is mandatory or not (might be different as specified in
+    the data layer).]
+    item[e[isVisible] - Whether this input is visible or not.]
+]
+
+section4:GenRefDesignField[Design field]
+
+Shows some additional information which is not data-driven.
+
+It includes the following properties in addition to the common ref:GenRefField[field] settings:
+
+ul[
+    item[e[tagName] - Defines which markup tag should be used (for example e[p] or e[h4].]
+]
+
+section4:GenRefFormLabel[Form label]
+
+ref:GenRefDesignField[Design field] extension for form labels.
+
+It includes the following properties in addition to the ref:GenRefDesignField[design field] settings:
+
+ul[
+    item[e[for] - Allows referencing an ref:GenRefInputField[input field].]
+]
+
+section4:GenRefButton[Button]
+
+Abstract representation for buttons.
+
+A button may have the following references:
+
+ul[
+    item[e[label] - String for the label text.]
+]
+
+section4:GenRefLink[Link]
+
+Abstract representation for hyperlinks.
+
+section4:GenRefActivator[Activator]
+
+An activator is something which submits a form or start another way of interaction.
+
+section4:GenRefSubmitButton[Submit button]
+
+Inherits from both ref:GenRefSubmitActivator[submit activator] and ref:GenRefButton[button].
+
+A submit button may have the following references:
+
+ul[
+    item[e[searchContext] - Allows referencing a ref:GenRefSearchPanel[search panel].]
+]
+
+The submit button type defines which kind of cancel button should be used:
+
+ul[
+    item[OK]
+    item[YES]
+    item[CONTINUE]
+    item[NEXT]
+]
+
+section4:GenRefCancelButton[Cancel button]
+
+Inherits from both ref:GenRefCancelActivator[cancel activator] and ref:GenRefButton[button].
+
+The cancel button type defines which kind of cancel button should be used:
+
+ul[
+    item[CANCEL]
+    item[NO]
+    item[PREVIOUS]
+]
+
+section4:GenRefSubmitActivator[Submit activator]
+
+A submit activator may have the following references:
+
+ul[
+    item[e[submitContext] - Allows referencing a ref:GenRefContainer[container].]
+]
+
+section4:GenRefCancelActivator[Cancel activator]
+
+A cancel activator may have the following references:
+
+ul[
+    item[e[cancelContext] - Allows referencing a ref:GenRefContainer[container].]
+]
+
+section4:GenRefSubmitLink[Submit link]
+
+Inherits from both ref:GenRefSubmitActivator[submit activator] and ref:GenRefLink[link].
+
+section4:GenRefBackLink[Back link]
+
+Inherits from both ref:GenRefCancelActivator[cancel activator] and ref:GenRefLink[link].
+
+section4:GenRefLayoutOrder[Layout order]
+
+With layout orders you can add relations to panels to define whether they should float beside each other
+or not.
+
+It includes the following properties:
+
+ul[
+    item[e[length] - The length value.]
+    item[e[lengthtype] - The length type (see below). Default is PIXELS.]
+    item[e[type] - The type of layout order (see below). Default is HORIZ_LEFT.]
+]
+
+A layout order may have the following references:
+
+ul[
+    item[e[source] - Reference to source sub container.]
+    item[e[target] - Reference to target sub container.]
+    item[e[viewContext] - Reference to the owning element.]
+]
+
+section4:GenRefLayoutOrderType[Layout order type]
+
+Defines how the panels are connected to each other visually.
+
+Can be one of the following options:
+
+ul[
+    item[HORIZ_LEFT]
+    item[HORIZ_RIGHT]
+    item[VERTICAL]
+]
+
+section4:GenRefLayoutOrderLengthType[Layout order length type]
+
+Specifies the unit which is used for the length definition.
+
+Can be one of the following options:
+
+ul[
+    item[PIXELS]
+    item[PERCENT]
+    item[EM]
+    item[EX]
+    item[CENTIMETER]
+    item[MILLIMETER]
+    item[INCH]
+    item[POINTS]
+    item[PICAS]
+]
+
+section3:GeneratorViewCombinations[Combinations and edge cases]
+
+As there is no view editor available yet this section is empty for now.
+
+
+section2:GeneratorWorkflowLayer[Workflow layer]
+
+The workflow layer is not implemented yet. At the moment there is only a mockup created by the generator
+which is also not completed yet though.
+For more information regarding this see link[https://github.com/Guite/MostGenerator/issues/32][issue
+#32].
+
+It is planned to create a dedicated layer for modeling only possible workflow states and actions.
+
+section:GeneratorNotes[Additional notes]
+
+None yet.

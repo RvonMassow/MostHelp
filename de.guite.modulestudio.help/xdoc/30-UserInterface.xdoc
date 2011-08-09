@@ -1,0 +1,73 @@
+chapter:UserInterface[User interface]
+
+section:UserInterfaceIntroduction[Introduction]
+
+This section shows how to use ModuleStudio. Starting with a general demonstration of the user interface
+it goes step by step through all single editors required for creating a complete model.
+
+At the moment this page consists only of a few links to corresponding tutorials. It will be enhanced
+at a later stage after the actual modeling language has matured enough to spend work on completing the
+user interface.
+
+section:UserInterfaceBasicElements[Basic usage]
+
+Please see link[http://modulestudio.de/en/tutorial/basic-usage.html][this tutorial].
+
+section:UserInterfaceSingleEditors[Single editors]
+
+section2:UserInterfaceMainEditor[Main editor]
+
+Please see link[http://modulestudio.de/en/tutorial/basic-settings-in-main-editor.html][this tutorial].
+
+img[images/main_model.png][Main model][blockimg][border:1px solid black]
+
+section2:UserInterfaceDataLayer[Model editor]
+
+Please see link[http://modulestudio.de/en/tutorial/describing-the-model.html][this tutorial].
+
+img[images/model_model.png][Model model][blockimg][border:1px solid black]
+
+section2:UserInterfaceControllerLayer[Controller editor]
+
+Please see link[http://modulestudio.de/en/tutorial/modeling-the-controllers.html][this tutorial].
+
+img[images/controller_model.png][Controller model][blockimg][border:1px solid black]
+
+section2:UserInterfaceViewLayer[View editor]
+
+The view editor has not been implemented yet. This section is therefore just a dummy for future.
+
+section2:UserInterfaceWorkflowLayer[Workflow editor]
+
+The workflow editor has not been implemented yet. This section is therefore just a dummy for future.
+
+section:UserInterfaceUsefulHints[Useful hints]
+
+Here are some tutorial showing special abilities for certain use cases:
+ul[
+    item[link[http://modulestudio.de/en/tutorial/customise-palette.html][Customise palette]]
+    item[link[http://modulestudio.de/en/tutorial/multiple-container-elements.html][Multiple container
+    elements]]
+    item[link[http://modulestudio.de/en/tutorial/moving-fields-with-drag-n-drop.html][Moving fields with
+    drag n drop]]
+    item[link[http://modulestudio.de/en/tutorial/creating-multiple-elements-quickly.html][Creating multiple
+    elements quickly]]
+    item[link[http://modulestudio.de/en/tutorial/working-with-multiple-windows.html][Working with multiple
+    windows]]
+]
+
+section2:UserInterfaceShortcuts[Keyboard shortcuts]
+
+There are some very handy shortcuts hidden in ModuleStudio. For example it can be worth
+to experiment with the Ctrl (Alt on Mac) and/or Shift keys when moving or resizing an object.
+
+Here is a link[http://help.eclipse.org/helios/topic/org.eclipse.gmf.doc/prog-guide/runtime/Developer%20Guide%20to%20Keyboard%20Accessibility.html][list of all
+editor shortcuts].
+
+If one has selected a palette tool and creates an object in the diagram it is usually
+required to select the tool again in order to create another object. If one presses
+the Ctrl (Alt on Mac) key one can create multiple elements of the same type in one step.
+
+section:UserInterfaceNotes[Additional notes]
+
+None yet.

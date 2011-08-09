@@ -2,6 +2,7 @@
 <introContent>
   	<extensionContent id="whatsnew-top-left" style="css/style.css" name="Whats New Extension" path="whatsnew/@">
         <group style-id="content-group" id="deguitemodulestudio-introLink-group052">
+            <text>First version of user manual as reference (very simple version without interaction capabilities).</text>
             <text>Conversion of modeling language and generator for support of Doctrine 2.1 in the data layer.</text>
             <text>Updated to Eclipse 3.7 (Indigo).</text>
             <text>Fixed wrong property naming for feature license links on about page.</text>

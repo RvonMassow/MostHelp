@@ -1,0 +1,56 @@
+document[ModuleStudio User's Guide v0.5.2]
+
+authors[Axel Guckelsberger and many others]
+
+codelanguage-def[Java]
+[
+	abstract,continue,for,new,switch,
+	assert,default,package,synchronized,
+	boolean,do,if,private,this,
+	break,double,implements,protected,throw,
+	byte,else,import,public,throws,
+	case,enum,instanceof,return,transient,
+	catch,extends,int,short,try,
+	char,final,interface,static,void,
+	class,finally,long,strictfp,volatile,
+	float,native,super,while
+]
+
+codelanguage-def[PHP]
+[
+	abstract,continue,for,new,switch,
+	assert,if,private,this,
+	break,implements,protected,throw,
+	else,import,public,throws,
+	case,const,instanceof,return,
+	catch,extends,int,try,
+	char,final,interface,static,void,
+	class,finally,long,
+	float,parent,while
+]
+
+part[First steps]
+
+chapter-ref[Introduction]
+
+chapter-ref[ComponentOverview]
+
+chapter-ref[GettingStarted]
+
+chapter-ref[UserInterface]
+
+part[Enhanced topics]
+
+chapter-ref[Validation]
+
+chapter-ref[Generator]
+
+chapter-ref[Customisation]
+
+chapter-ref[OtherCatridges]
+
+chapter-ref[AddOns]
+
+part[Appendix]
+
+chapter-ref[Glossary]

@@ -1,0 +1,21 @@
+module workflow.GenerateDocs
+
+import org.eclipse.emf.mwe.utils.*
+
+var targetDir = "pdfmanual"
+var modelPath = "xdoc"
+
+Workflow {
+    component = @workflow.XDocGenerator {
+        // or define search scope explicitly
+        modelPath = modelPath
+        targetDir = targetDir
+        document = "ModuleStudio Documentation"
+        pdfLatex = "/usr/bin/pdflatex"
+        // whether to create todo elements or not
+        release = true
+    }
+}
+
+// installation of pdflatex in ubuntu:
+// wajig install texlive-latex-base

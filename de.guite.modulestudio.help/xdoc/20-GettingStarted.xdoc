@@ -1,0 +1,33 @@
+chapter:GettingStarted[Getting started]
+
+This chapter explains the first steps required for starting creating applications with ModuleStudio.
+
+For now we refer only to existing tutorials as they describe things still quite well.
+
+section:GettingStartedInstallation[Installation]
+
+Please see link[http://modulestudio.de/en/tutorial/installation-on-various-platforms.html][this tutorial].
+
+section:GettingStartedFirstTour[First tour]
+
+Please see link[http://modulestudio.de/en/tutorial/the-first-zikula-application-in-10-minutes.html][this
+tutorial].
+
+section:GettingStartedDevelopmentProcess[Development process]
+
+Developing model-driven applications works well in combination with an iterative-incremental development
+process. In this approach you start with a small model which will then be enhanced in several steps whereby
+some short tests verify that the direction is correct.
+
+Each cycle consists of the following steps:
+
+ol[
+	item[Create or change model]
+	item[Regenerate]
+	item[Merge changes]
+	item[Test intermediate results]
+]
+
+section:GettingStartedNotes[Additional notes]
+
+None yet.
