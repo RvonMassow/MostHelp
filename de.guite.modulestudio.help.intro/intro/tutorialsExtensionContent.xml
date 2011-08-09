@@ -3,7 +3,7 @@
   	<extensionContent id="tutorials-top-left" style="css/style.css" name="Tutorials Extension" path="tutorials/@">
 		<group style-id="content-group" id="deguitemodulestudio-introLink-group">
        		<text>We started a cheat sheet tutorial (see Help > Cheat Sheets...) which is not finished though.</text>
-       		<text>There is a small tutorial in the web which can be found at http://modulestudio.de/MDSD/download.html</text>
+       		<text>Please see the list on the right side for (video) tutorials from our website.</text>
        		<text>Feel free to use the support forums on modulestudio.de if you have further questions.</text>
        	</group>
   	</extensionContent>
