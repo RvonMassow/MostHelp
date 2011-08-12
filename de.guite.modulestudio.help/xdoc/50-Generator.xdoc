@@ -273,7 +273,8 @@ ul[
     set to e[true] the generator creates an additional entity for managing the attributes. During ref:GenRefEditAction[edit]
     actions it is possible to input values for three predefined attributes. These will also be shown again on
     ref:GenRefDisplayAction[display] pages. There is no included support yet for arbitrary attributes
-    like they are known from the Categories administration area.]
+    like they are known from the Categories administration area. While the display side is ready for
+    that, the edit page needs some dynamic support for creating new attributes on the fly.]
     item[e[categorisable] - A boolean specifying whether this entity should have categories or not. If
     set to e[true] the generator creates an additional entity for managing the categories. During ref:GenRefEditAction[edit]
     actions it is possible to select a desired category. This category will also be shown again on ref:GenRefDisplayAction[display]
@@ -1165,8 +1166,8 @@ code[PHP][
 
 While this implementation approach is quite elegant it is not completed yet in all areas unfortunately.
 At least during installation everything should be fine. When working with the application you will notice
-that inherited fields are handled well, but additional fields from the child classes are not considered
-yet.
+that inherited fields are handled well, but additional fields from the parent classes are not considered
+yet everywhere. See link[https://github.com/Guite/MostGenerator/issues/46][#46] for more information.
 
 section4:GenRefInheritanceStrategyType[Inheritance strategy type]
 
