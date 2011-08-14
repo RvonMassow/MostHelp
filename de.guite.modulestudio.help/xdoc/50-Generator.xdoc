@@ -668,9 +668,10 @@ For the output in ref:GenRefViewAction[view] and ref:GenRefDisplayAction[display
 a download link is shown together with the filesize. If the file is an image then a small version of
 it is shown instead of a text link (on edit pages too by the way).
 
-If an application has any upload fields the generator creates a e[recommended] dependency to the e[Thumbnails]
-extension. If this module is installed then the generated application uses it to create and store thumbnails
-on demand. There is a view modifier available which understands many parameters to use arbitrary images
+If an application has any upload fields the generator creates an additional util class containing methods
+for image processing. The generated application uses it to create and store thumbnails on demand with
+the help of the Imagine library which is included in Zikula 1.3. There is a view modifier available which
+works together with the mentioned util class and understands many parameters to use arbitrary images
 in the templates.
 
 For every upload field e[foo] there will be another ref:GenRefArrayField[array field] created which is named
