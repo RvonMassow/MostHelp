@@ -1060,7 +1060,7 @@ table[
         td[One to many relationship]
         td[The orderBy attribute points to an invalid field of the target entity.]
         td[Checks whether the target entity contains a field equally named like the e[orderBy] property.
-        Currently disabled because also expressions like e[status ASC, cr_date DESC] are allowed. Will
+        Currently disabled because also expressions like e[status ASC, createdDate DESC] are allowed. Will
         probably be removed in a future version.]
     ]
 ]
@@ -1087,7 +1087,7 @@ table[
         td[Many to many relationship]
         td[The orderBy attribute points to an invalid field of the target entity.]
         td[Checks whether the target entity contains a field equally named like the e[orderBy] property.
-        Currently disabled because also expressions like e[status ASC, cr_date DESC] are allowed. Will
+        Currently disabled because also expressions like e[status ASC, createdDate DESC] are allowed. Will
         probably be removed in a future version.]
     ]
     tr[
