@@ -1436,13 +1436,13 @@ available) fetch a simple template file.
 section4:GenRefViewAction[View action]
 
 The view implementation offers a generic list view of multiple items which can be sorted and filtered.
-Also there are alternative template formats created for rss, atom, xml and csv support. Just add e[&userssext=1]
-to the url or, even easier with shorturls, change e[persons.html] to e[persons.rss].
+Also there are alternative template formats created for atom, csv, json, rss and xml support.
+Just add e[&userssext=1] to the url or, even easier with shorturls, change e[persons.html] to e[persons.rss].
 
 section4:GenRefDisplayAction[Display action]
 
 A display action results in a generic detail view of an entity. Again there are alternative formats supported,
-like for example xml.
+like for example csv, json and xml.
 
 section4:GenRefEditAction[Edit action]
 

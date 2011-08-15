@@ -2,6 +2,7 @@
 <introContent>
   	<extensionContent id="whatsnew-top-left" style="css/style.css" name="Whats New Extension" path="whatsnew/@">
         <group style-id="content-group" id="deguitemodulestudio-introLink-group052">
+            <text>Added support for json templates in the generator.</text>
             <text>Use Imagine image processing library instead of Thumbnails module for creating preview images on demand.</text>
             <text>First version of user manual as reference (very simple version without interaction capabilities).</text>
             <text>Comprehensive update of modeling language and generator for support of Doctrine 2.1 in the data layer. This includes many new features, like for example the separation of unidirectional and bidirectional associations or the ability to have ordered and indexed relationships. In the generator business entity and model record layers have been merged to one entity layer. This reduces much code and improves understandability as well as the overall application structure. Also we added a new validator framework as well as other functions to keep as much extensions as possible.</text>
