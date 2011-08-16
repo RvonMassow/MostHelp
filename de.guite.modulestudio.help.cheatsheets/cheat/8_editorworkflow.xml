@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cheatsheet title="%cheatsheet.editorworkflow.name">
+<cheatsheet title="Modeling workflows">
    <intro>
       <description>
-         <b>Body</b>
+         This cheat sheet helps you to customise your application workflows.
       </description>
    </intro>
    <item title="Item" dialog="true" skip="false">
       <description>
-         <b>Body</b>
+         Description comes here.
       </description>
    </item>
 </cheatsheet>

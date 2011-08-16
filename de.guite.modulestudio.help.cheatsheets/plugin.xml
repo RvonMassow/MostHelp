@@ -16,11 +16,14 @@
 	<!-- enable cheat sheets -->
     <extension
           point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+       <category name="ModuleStudio" id="base_cheatsheet.category_modulestudio">
+       </category>
        <cheatsheet
-             composite="true"
+             name="%cheatsheet.modulestudio.name"
+             category="base_cheatsheet.category_modulestudio"
              contentFile="$nl$/cheat/1_modulestudio_composite.xml"
-             id="de.guite.modulestudio.help.cheatsheet1812025377"
-             name="%cheatsheet.modulestudio.name">
+             composite="true"
+             id="de.guite.modulestudio.help.cheatsheet1812025377">
           <description>%cheatsheet.modulestudio.desc</description>
        </cheatsheet>
        <!-- other cheat sheets can be registered later at this point -->

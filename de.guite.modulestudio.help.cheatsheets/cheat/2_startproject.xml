@@ -2,7 +2,7 @@
 <cheatsheet title="Start a new project">
    <intro>
       <description>
-         <b>In this lesson you learn how to create new projects by using a wizard.</b>
+         In this lesson you learn how to create new projects by using a wizard.
       </description>
    </intro>
    <item title="Open up the wizard" dialog="true" skip="true">
@@ -15,7 +15,7 @@
    <item title="Define model file name" dialog="true" skip="true">
       <description>
          Every project must store the elements being part of the software you create. Therefore you have to specify a file storing these elements.
-         There are two files created: foo.mostapp for the actual application model and foo.mostdiagram for the diagram representation.
+         There are two files created: <b>foo.mostapp</b> for the actual application model and <b>foo.mostdiagram</b> for the diagram representation.
       </description>
    </item>
 </cheatsheet>

@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cheatsheet title="%cheatsheet.generator.name">
+<cheatsheet title="Generating an application">
    <intro>
       <description>
-         <b>Body</b>
+         Model validation and how to generate code from it.
       </description>
    </intro>
-   <item title="Item" dialog="true" skip="false">
+   <item title="Check validation" skip="false">
       <description>
-         <b>Body</b>
+         First the model state must be checked to make generation possible.
       </description>
+      <onCompletion>
+         Now the model is valid and ready for further processing.
+      </onCompletion>
+   </item>
+   <item title="Execute the generator" dialog="true" skip="false">
+      <description>
+         Now the generator can be started.
+      </description>
+      <subItem title="Start by main menu" dialog="true" skip="false">
+         <description>
+            Start the generator in the main menu by <b>File &gt; Generate application</b>. Or use the following link.
+         </description>
+         <action
+             class="de.guite.modulestudio.gmf.main.application.DiagramEditActionBarAdvisor.GenerateAction"
+             pluginId="de.guite.modulestudio.gmf.main" confirm="true">
+         </action>
+      </subItem>
    </item>
 </cheatsheet>

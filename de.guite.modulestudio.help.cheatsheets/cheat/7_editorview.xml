@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cheatsheet title="%cheatsheet.editorview.name">
+<cheatsheet title="Modeling view layers">
    <intro>
       <description>
-         <b>Body</b>
+         This cheat sheet helps you to create a new view layer within your application.
       </description>
    </intro>
    <item title="Item" dialog="true" skip="false">
       <description>
-         <b>Body</b>
+         Description comes here.
       </description>
    </item>
 </cheatsheet>
