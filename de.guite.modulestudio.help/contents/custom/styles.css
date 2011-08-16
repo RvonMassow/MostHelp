@@ -19,6 +19,7 @@ border-collapse: collapse;
 }
 table th, table td {
 border: 1px solid #666666;
+padding: 1px 3px;
 }
 
 
