@@ -2,11 +2,12 @@
 <compositeCheatsheet name="ModuleStudio Cheat Sheet">
    <taskGroup kind="set" name="Build software the easy way" skip="false">
       <intro>
-         <b>This cheat sheet is a tutorial showing how to create software with ModuleStudio.</b>
+         <description>
+            <b>This cheat sheet is a tutorial showing how to create applications with ModuleStudio.</b>
+         </description>
       </intro>
       <onCompletion>
-         Now you have built a complete application by the simple use of model elements.
-<b>Great, isn&apos;t it?</b>
+         Now you have built a complete application by the simple use of model elements. <b>Great, isn&apos;t it?</b>
       </onCompletion>
       <task kind="cheatsheet" name="Start new project" skip="true">
          <intro>
@@ -65,16 +66,6 @@
             <param name="path" value="6_editorcontroller.xml">
             </param>
          </task>
-         <task kind="cheatsheet" name="Permission editor" skip="true">
-            <intro>
-               <b>Introduction</b>
-            </intro>
-            <onCompletion>
-               <b>Conclusion</b>
-            </onCompletion>
-            <param name="path" value="7_editorpermission.xml">
-            </param>
-         </task>
          <task kind="cheatsheet" name="View editor" skip="true">
             <intro>
                <b>Introduction</b>
@@ -82,7 +73,17 @@
             <onCompletion>
                <b>Conclusion</b>
             </onCompletion>
-            <param name="path" value="8_editorview.xml">
+            <param name="path" value="7_editorview.xml">
+            </param>
+         </task>
+         <task kind="cheatsheet" name="Workflow editor" skip="true">
+            <intro>
+               <b>Introduction</b>
+            </intro>
+            <onCompletion>
+               <b>Conclusion</b>
+            </onCompletion>
+            <param name="path" value="8_editorworkflow.xml">
             </param>
          </task>
       </taskGroup>

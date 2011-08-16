@@ -23,5 +23,6 @@
              name="%cheatsheet.modulestudio.name">
           <description>%cheatsheet.modulestudio.desc</description>
        </cheatsheet>
+       <!-- other cheat sheets can be registered later at this point -->
     </extension>
 </plugin>
