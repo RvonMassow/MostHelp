@@ -2,23 +2,23 @@ module workflow.GenerateDocs
 
 import org.eclipse.emf.mwe.utils.*
 
-var targetDir = "pdfmanual"
-var modelPath = "xdoc"
-
+/**
+ * Workflow for generation of pdf documentation.
+ * Requires a reference to the pdflatex executable.
+ *
+ * Installation of pdflatex in ubuntu: wajig install texlive-latex-base.
+ */
 Workflow {
-/*      bean = StandaloneSetup {
+    bean = StandaloneSetup {
         platformUri="."
-	}*/
+	}
     component = @workflow.XDocGenerator {
         // or define search scope explicitly
-        modelPath = modelPath
-        targetDir = targetDir
-        document = "ModuleStudio Documentation"
+        modelPath = "xdoc"
+        targetDir = "pdfmanual"
+        document = "00-Main"//""ModuleStudio Documentation"
         pdfLatex = "/usr/bin/pdflatex"
         // whether to create todo elements or not
         release = true
     }
 }
-
-// installation of pdflatex in ubuntu:
-// wajig install texlive-latex-base
