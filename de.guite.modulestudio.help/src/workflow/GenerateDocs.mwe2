@@ -13,7 +13,6 @@ Workflow {
         platformUri="."
 	}
     component = @workflow.XDocGenerator {
-        // or define search scope explicitly
         modelPath = "xdoc"
         targetDir = "pdfmanual"
         document = "00-Main"//""ModuleStudio Documentation"
